@@ -1,5 +1,6 @@
 package lib.crescent.nms.enchantment;
 
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -37,21 +38,29 @@ public class NMSEnchantmentDefinition {
 
 	public Enchantment.c castToNMSEnchantmentDefinition() {
 		HolderSet<Item> nms_supported_items = null;
-		if (supported_items == null) {// 不设置成员则认为是该tag已经存在且有成员
+		if (supported_items.getMembers() == null) {// 不设置成员则认为是该tag已经存在且有成员
 			if ((nms_supported_items = TagUtils.getItemTagMembers(supported_items.getNamespacedTag())) == null)// 寻找tag的成员
 				Bukkit.getLogger().log(Level.SEVERE, "Cannot find supported_items. Its tag " + supported_items + " doesn't exist");// 找不到就报错
 		} else {
 			if (supported_items.getNamespacedTag() == null)// 如果不指定Tag名称，则使用HolderSet.Direct，这是无Tag只包含成员的集合
-				nms_supported_items = HolderSetUtils.createItemSet(supported_items.getMembers());
+				nms_supported_items = HolderSetUtils.createDirectItemSet(supported_items.getMembers());
+			else {
+				Bukkit.getLogger().log(Level.WARNING, "Supported items is null. Created a empty set for it");
+				nms_supported_items = HolderSetUtils.createDirectItemSet(Set.of());
+			}
 		}
 		HolderSet<Item> nms_primary_items = null;
-		if (primary_items == null) {// 不设置成员则认为是该tag已经存在且有成员
+		if (primary_items.getMembers() == null) {// 不设置成员则认为是该tag已经存在且有成员
 			if ((nms_primary_items = TagUtils.getItemTagMembers(primary_items.getNamespacedTag())) == null)// 寻找tag的成员
 				Bukkit.getLogger().log(Level.SEVERE, "Cannot find primary_items. Its tag " + supported_items + " doesn't exist");
 		} else {
 			if (primary_items.getNamespacedTag() == null)
-				nms_primary_items = HolderSetUtils.createItemSet(primary_items.getMembers());
-		} // 找不到就新建
+				nms_primary_items = HolderSetUtils.createDirectItemSet(primary_items.getMembers());
+			else {
+				Bukkit.getLogger().log(Level.WARNING, "Primary items is null. Created a empty set for it");
+				nms_primary_items = HolderSetUtils.createDirectItemSet(Set.of());
+			}
+		}
 		EquipmentSlotGroup[] nms_slots = EquipmentSlotUtils.getNMSEquipmentSlotGroup(slots);
 		return Enchantment.definition(nms_supported_items, nms_primary_items, weight, max_level, getNMSCost(min_cost), getNMSCost(max_cost), anvil_cost, nms_slots);
 	}

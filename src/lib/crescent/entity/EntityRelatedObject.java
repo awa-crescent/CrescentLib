@@ -1,5 +1,6 @@
 package lib.crescent.entity;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -9,7 +10,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-public class EntityRelatedObject<T> implements Listener {
+import lib.crescent.utils.serialize.AutoSerializable;
+
+public class EntityRelatedObject<T> implements Listener, Serializable, AutoSerializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4806539251910310461L;
+
 	protected HashMap<UUID, T> enternal_related_object;
 	protected HashMap<UUID, T> clear_on_death_related_object;
 

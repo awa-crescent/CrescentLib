@@ -5,6 +5,10 @@ import java.util.UUID;
 import org.bukkit.entity.LivingEntity;
 
 public class EntityRelatedIntValue extends EntityRelatedObject<Integer> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1195055807917831791L;
 
 	public EntityRelatedIntValue(String plugin_name) {
 		super(plugin_name);

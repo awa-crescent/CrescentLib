@@ -72,7 +72,7 @@ public class HolderSetUtils {
 		return (HolderSet.a<T>) Reflect.construct(HolderSet.a.class, List.class, contents);
 	}
 
-	public static HolderSet.a<Item> createItemSet(Set<String> namespaced_members) {
+	public static HolderSet.a<Item> createDirectItemSet(Set<String> namespaced_members) {
 		return createHolderSetDirect(Registries.ITEM, namespaced_members);
 	}
 

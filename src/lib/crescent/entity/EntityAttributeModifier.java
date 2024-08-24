@@ -1,5 +1,10 @@
 package lib.crescent.entity;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,19 +18,32 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.plugin.Plugin;
+
+import lib.crescent.utils.serialize.AutoSerializable;
 
 /**
  * 能记录对目标对象的属性值变更，用于追踪对目标的属性值更改了多少，例如可以用于死亡时复原实体的属性值
  */
-public class EntityAttributeModifier implements Listener {
+public class EntityAttributeModifier implements Listener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7221589165257970392L;
+
 	// 某一个Attribute记录的所有实体以及对应修改值，只记录修改值，不实际对实体进行属性修改操作
-	protected class AttributeModifierEntityEntry {
+	protected class AttributeModifierEntityEntry implements Externalizable, AutoSerializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3529652973877636835L;
+
 		private Attribute attribute;
 		private HashMap<UUID, Double> primary_values;
 		private HashMap<UUID, Double> modifiers;
 
-		public AttributeModifierEntityEntry(Attribute attribute) {
-			this.attribute = attribute;
+		public AttributeModifierEntityEntry(String attribute) {
+			this.attribute = Attribute.valueOf(attribute);
 			primary_values = new HashMap<>();
 			modifiers = new HashMap<>();
 		}
@@ -112,11 +130,26 @@ public class EntityAttributeModifier implements Listener {
 		public double resetModifiedBaseValue(LivingEntity entity) {
 			return resetModifiedBaseValue(entity.getUniqueId());
 		}
+
+		@Override
+		public void writeExternal(ObjectOutput out) throws IOException {
+			out.writeObject(attribute.getKey().getKey());// 属性都是minecraft命名空间
+			out.writeObject(primary_values);
+			out.writeObject(modifiers);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			attribute = Attribute.valueOf((String) in.readObject());
+			primary_values = (HashMap<UUID, Double>) in.readObject();
+			modifiers = (HashMap<UUID, Double>) in.readObject();
+		}
 	}
 
 	// 属性增加记录为正，减少记录为负。死亡后清除的会单独记录以减少遍历次数，提高性能
-	private HashMap<Attribute, AttributeModifierEntityEntry> enternal_modified_entities;// 永久改变的值，死亡后保持（只有玩家能死亡后复活）
-	private HashMap<Attribute, AttributeModifierEntityEntry> clear_on_death_modified_entities;// 死亡后将清除的值
+	private HashMap<String, AttributeModifierEntityEntry> enternal_modified_entities;// 永久改变的值，死亡后保持（只有玩家能死亡后复活）
+	private HashMap<String, AttributeModifierEntityEntry> clear_on_death_modified_entities;// 死亡后将清除的值
 
 	/**
 	 * 构建一个能记录属性更改的对象，并且可以设置死亡后复原修改的属性（不会和别的EntityAttributeModifier对象行为冲突）。第一次修改某个属性时会记录修改前的原始值
@@ -126,7 +159,8 @@ public class EntityAttributeModifier implements Listener {
 	public EntityAttributeModifier(String plugin_name) {
 		enternal_modified_entities = new HashMap<>();
 		clear_on_death_modified_entities = new HashMap<>();
-		Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getServer().getPluginManager().getPlugin(plugin_name));// 注册该类的事件监听，注册后方可使用@EventHandler
+		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(plugin_name);
+		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);// 注册该类的事件监听，注册后方可使用@EventHandler
 	}
 
 	@EventHandler
@@ -142,7 +176,7 @@ public class EntityAttributeModifier implements Listener {
 	 * @param type   选择获取永久修饰、死亡清除修饰或者两者之和
 	 * @return 该对象记录的实体修饰值
 	 */
-	public double getModifiedBaseValue(LivingEntity entity, Attribute attrib, ValueType type) {
+	public double getModifiedBaseValue(LivingEntity entity, String attrib, ValueType type) {
 		UUID uuid = entity.getUniqueId();
 		AttributeModifierEntityEntry enternal_attribs = null;
 		AttributeModifierEntityEntry clear_on_death_attribs = null;
@@ -177,9 +211,9 @@ public class EntityAttributeModifier implements Listener {
 	 * @param clear_on_death 是否在死亡后撤销该值的更改
 	 * @return
 	 */
-	public EntityAttributeModifier addBaseValue(LivingEntity entity, Attribute attrib, double value, boolean clear_on_death) {
+	public EntityAttributeModifier addBaseValue(LivingEntity entity, String attrib, double value, boolean clear_on_death) {
 		AttributeModifierEntityEntry modified_attribs = null;
-		AttributeInstance attrib_ins = entity.getAttribute(attrib);
+		AttributeInstance attrib_ins = entity.getAttribute(Attribute.valueOf(attrib));
 		if (clear_on_death) {
 			modified_attribs = clear_on_death_modified_entities.get(attrib);
 			if (modified_attribs == null) {
@@ -198,7 +232,7 @@ public class EntityAttributeModifier implements Listener {
 		return this;
 	}
 
-	public EntityAttributeModifier subBaseValue(LivingEntity entity, Attribute attrib, double value, boolean clear_on_death) {
+	public EntityAttributeModifier subBaseValue(LivingEntity entity, String attrib, double value, boolean clear_on_death) {
 		return addBaseValue(entity, attrib, -value, clear_on_death);
 	}
 
@@ -210,9 +244,9 @@ public class EntityAttributeModifier implements Listener {
 	 * @param type   要清除的类型
 	 * @return
 	 */
-	public EntityAttributeModifier resetBaseValue(LivingEntity entity, Attribute attrib, ValueType type) {
+	public EntityAttributeModifier resetBaseValue(LivingEntity entity, String attrib, ValueType type) {
 		UUID uuid = entity.getUniqueId();
-		AttributeInstance present_attrib_instance = entity.getAttribute(attrib);
+		AttributeInstance present_attrib_instance = entity.getAttribute(Attribute.valueOf(attrib));
 		AttributeModifierEntityEntry enternal_attribs = null;
 		AttributeModifierEntityEntry clear_on_death_attribs = null;
 		boolean reset_enternal = false;
@@ -257,8 +291,8 @@ public class EntityAttributeModifier implements Listener {
 	 */
 	public EntityAttributeModifier resetBaseValue(LivingEntity entity, ValueType type) {
 		UUID uuid = entity.getUniqueId();
-		Set<Entry<Attribute, AttributeModifierEntityEntry>> enternal_attribs_entry_set = enternal_modified_entities.entrySet();
-		Set<Entry<Attribute, AttributeModifierEntityEntry>> clear_on_death_attribs_entry_set = clear_on_death_modified_entities.entrySet();
+		Set<Entry<String, AttributeModifierEntityEntry>> enternal_attribs_entry_set = enternal_modified_entities.entrySet();
+		Set<Entry<String, AttributeModifierEntityEntry>> clear_on_death_attribs_entry_set = clear_on_death_modified_entities.entrySet();
 		boolean reset_enternal = false;
 		boolean reset_clear_on_death = false;
 		switch (type) {
@@ -276,20 +310,20 @@ public class EntityAttributeModifier implements Listener {
 			break;
 		}
 		if (reset_enternal)
-			for (Map.Entry<Attribute, AttributeModifierEntityEntry> entity_entry : enternal_attribs_entry_set) {
+			for (Map.Entry<String, AttributeModifierEntityEntry> entity_entry : enternal_attribs_entry_set) {
 				AttributeModifierEntityEntry enternal_attribs = entity_entry.getValue();
 				AttributeInstance present_attrib_instance = entity.getAttribute(enternal_attribs.getAttribute());
 				present_attrib_instance.setBaseValue(present_attrib_instance.getBaseValue() - enternal_attribs.resetModifiedBaseValue(uuid));
 				if (enternal_attribs.isEmpty())
-					enternal_modified_entities.remove(enternal_attribs.getAttribute());
+					enternal_modified_entities.remove(enternal_attribs.getAttribute().getKey().getKey());
 			}
 		if (reset_clear_on_death)
-			for (Map.Entry<Attribute, AttributeModifierEntityEntry> entity_entry : clear_on_death_attribs_entry_set) {
+			for (Map.Entry<String, AttributeModifierEntityEntry> entity_entry : clear_on_death_attribs_entry_set) {
 				AttributeModifierEntityEntry clear_on_death_attribs = entity_entry.getValue();
 				AttributeInstance present_attrib_instance = entity.getAttribute(clear_on_death_attribs.getAttribute());
 				present_attrib_instance.setBaseValue(present_attrib_instance.getBaseValue() - clear_on_death_attribs.resetModifiedBaseValue(uuid));
 				if (clear_on_death_attribs.isEmpty())
-					clear_on_death_modified_entities.remove(clear_on_death_attribs.getAttribute());
+					clear_on_death_modified_entities.remove(clear_on_death_attribs.getAttribute().getKey().getKey());
 			}
 		return this;
 	}
@@ -302,7 +336,7 @@ public class EntityAttributeModifier implements Listener {
 	 * @param type   获取的类型
 	 * @return 修改前的属性基础数值
 	 */
-	public double getPrimaryBaseValue(LivingEntity entity, Attribute attrib, ValueType type) {
+	public double getPrimaryBaseValue(LivingEntity entity, String attrib, ValueType type) {
 		UUID uuid = entity.getUniqueId();
 		AttributeModifierEntityEntry modified_attrib_entry = null;
 		switch (type) {
