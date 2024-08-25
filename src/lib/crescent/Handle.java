@@ -41,6 +41,29 @@ public class Handle {
 		return findSpecialMethodHandle(search_chain_start_subclazz, search_chain_end_superclazz, method_name, MethodType.methodType(return_type, arg_types));
 	}
 
+	public static MethodHandle findVirtualMethodHandle(Class<?> clazz, String method_name, MethodType type) {
+		MethodHandles.Lookup lookup;
+		try {
+			lookup = MethodHandles.privateLookupIn(clazz, trusted_lookup); // 获取该类所有的字节码行为的Lookup，即无视访问权限查找
+			return lookup.findVirtual(clazz, method_name, type);
+		} catch (IllegalAccessException | NoSuchMethodException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
+	public static MethodHandle findVirtualMethodHandle(Class<?> clazz, String method_name, Class<?> return_type, Class<?>... arg_types) {
+		return findVirtualMethodHandle(clazz, method_name, MethodType.methodType(return_type, arg_types));
+	}
+
+	/**
+	 * 查找静态函数的方法句柄
+	 * 
+	 * @param clazz
+	 * @param method_name
+	 * @param type
+	 * @return
+	 */
 	public static MethodHandle findStaticMethodHandle(Class<?> clazz, String method_name, MethodType type) {
 		MethodHandles.Lookup lookup;
 		try {

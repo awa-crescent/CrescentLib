@@ -331,4 +331,18 @@ public abstract class Manipulator {
 	public static boolean setLongValue(Object obj, String field, long value) {
 		return setLongValue(obj, Reflect.getField(obj, field), value);
 	}
+
+	public static boolean setBooleanValue(Object obj, Field field, boolean value) {
+		if (field == null)
+			return false;
+		if (Modifier.isStatic(field.getModifiers()))
+			unsafe.putBoolean(staticFieldBase(field), staticFieldOffset(field), value);
+		else
+			unsafe.putBoolean(obj, objectFieldOffset(field), value);
+		return true;
+	}
+
+	public static boolean setBooleanValue(Object obj, String field, boolean value) {
+		return setBooleanValue(obj, Reflect.getField(obj, field), value);
+	}
 }

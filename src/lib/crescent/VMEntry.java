@@ -1,5 +1,7 @@
 package lib.crescent;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.VarHandle;
 import java.lang.management.ManagementFactory;
 import java.lang.management.PlatformManagedObject;
 import java.lang.reflect.InvocationTargetException;
@@ -8,8 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 import com.sun.management.HotSpotDiagnosticMXBean;
-//import sun.management.RuntimeImpl;
-//import sun.management.VMManagementImpl;
 //import jdk.internal.loader.BootLoader;
 
 @SuppressWarnings({ "unchecked" })
@@ -17,19 +17,28 @@ public abstract class VMEntry {
 	public static final int NATIVE_JVM_BIT_VERSION;// 64或32
 	public static final boolean NATIVE_JVM_HOTSPOT;// JVM是否是HotSpot，如果是才能获取JVM参数进而判断指针是否压缩
 	public static final boolean NATIVE_JVM_COMPRESSED_OOPS;
-	// public static final ArrayList<URL> BOOTSTRAP_CLASSPATH = null;
-
+	// JVM的管理类，实现是sun.management.VMManagementImpl，是sun.management.RuntimeImpl的成员jvm
+	private static final Object RuntimeMXBean = null;
 	private static final Object VMManagement = null;
+	public static final Class<?> VMManagementClass = null;
+	private static MethodHandle VMManagementImpl_getProcessId;
+	// 系统属性System.props
 	private static final Properties Properties = null;
-
+	// HotSpotDiagnosticMXBean的实现类是 com.sun.management.internal.HotSpotDiagnostic
 	private static final Class<ManagementFactory> ManagementFactoryClass = null;
 	private static final HotSpotDiagnosticMXBean HotSpotDiagnosticMXBean = null;
-	private static final Object RuntimeMXBean = null;
+	private static final Method HotSpotDiagnosticMXBean_getVMOption = null;
+	private static final Method VMOption_getValue = null;
+	// JVM参数 com.sun.management.internal.Flag
+	public static final Class<?> Flag = null;
+	private static MethodHandle Flag_getFlag;
+	private static MethodHandle Flag_getValue;
+	private static MethodHandle Flag_setLongValue;
+	private static MethodHandle Flag_setDoubleValue;
+	private static MethodHandle Flag_setBooleanValue;
+	private static MethodHandle Flag_setStringValue;
 
 	private static final Class<?> ClassLoaders = null;
-
-	private static final Method getVMOption = null;
-	private static final Method VMOption_getValue = null;
 
 	static {
 		String bit_version = System.getProperty("sun.arch.data.model");
@@ -45,17 +54,16 @@ public abstract class VMEntry {
 		boolean hotspot = false;
 		boolean compressed_oops = false;
 		try {
+			// 获取Management工厂类
 			Manipulator.setObjectValue(VMEntry.class, "ManagementFactoryClass", Class.forName("java.lang.management.ManagementFactory"));
+			// 获取HotSpotDiagnosticMXBeanClass
 			Class<HotSpotDiagnosticMXBean> HotSpotDiagnosticMXBeanClass = (Class<com.sun.management.HotSpotDiagnosticMXBean>) Class.forName("com.sun.management.HotSpotDiagnosticMXBean");
 			Manipulator.setObjectValue(VMEntry.class, "HotSpotDiagnosticMXBean", invokeManagementFactory("getPlatformMXBean", HotSpotDiagnosticMXBeanClass));
-			Manipulator.setObjectValue(VMEntry.class, "RuntimeMXBean", invokeManagementFactory("getRuntimeMXBean"));
-			Manipulator.setObjectValue(VMEntry.class, "VMManagement", Manipulator.access(RuntimeMXBean, "jvm"));
-			Manipulator.setObjectValue(VMEntry.class, "Properties", Manipulator.access(System.class, "props"));
 			if (HotSpotDiagnosticMXBean != null) {
-				hotspot = true;
-				Manipulator.setObjectValue(VMEntry.class, "getVMOption", Reflect.getMethod(HotSpotDiagnosticMXBeanClass, "getVMOption", String.class));
+				hotspot = true;// 获取HotSpotDiagnosticMXBean的getVMOption()方法
+				Manipulator.setObjectValue(VMEntry.class, "HotSpotDiagnosticMXBean_getVMOption", Manipulator.removeAccessCheck(Reflect.getMethod(HotSpotDiagnosticMXBeanClass, "getVMOption", String.class)));
 				if (NATIVE_JVM_BIT_VERSION == 64) {// 64位JVM需要检查是否启用了指针压缩
-					Object oops_option = getVMOption.invoke(HotSpotDiagnosticMXBean, "UseCompressedOops");
+					Object oops_option = HotSpotDiagnosticMXBean_getVMOption.invoke(HotSpotDiagnosticMXBean, "UseCompressedOops");
 					Manipulator.setObjectValue(VMEntry.class, "VMOption_getValue", Reflect.getMethod(oops_option, "getValue"));
 					compressed_oops = Boolean.parseBoolean(VMOption_getValue.invoke(oops_option).toString());
 				} else
@@ -65,8 +73,22 @@ public abstract class VMEntry {
 			hotspot = false;
 		}
 		try {
+			Manipulator.setObjectValue(VMEntry.class, "RuntimeMXBean", invokeManagementFactory("getRuntimeMXBean"));
+			Manipulator.setObjectValue(VMEntry.class, "VMManagement", Manipulator.access(RuntimeMXBean, "jvm"));// 获取JVM管理类
+			Manipulator.setObjectValue(VMEntry.class, "VMManagementClass", VMManagement.getClass());// 在HotSpot虚拟机中是sun.management.VMManagementImpl
+			VMManagementImpl_getProcessId = Handle.findSpecialMethodHandle(VMManagementClass, VMManagementClass, "getProcessId", int.class);// 获取进程ID的native方法
+			// 获取系统属性引用
+			Manipulator.setObjectValue(VMEntry.class, "Properties", Manipulator.access(System.class, "props"));
+			// 获取所有系统ClassLoaders
 			Manipulator.setObjectValue(VMEntry.class, "ClassLoaders", Class.forName("jdk.internal.loader.ClassLoaders"));
-			Manipulator.setObjectValue(VMEntry.class, "BOOTSTRAP_CLASSPATH", getBuiltinClassLoaderClassPath("BOOT_LOADER"));
+			// 虚拟机参数Flag类及其成员方法
+			Manipulator.setObjectValue(VMEntry.class, "Flag", Class.forName("com.sun.management.internal.Flag"));
+			Flag_getFlag = Handle.findStaticMethodHandle(Flag, "getFlag", Flag, String.class);
+			Flag_setLongValue = Handle.findStaticMethodHandle(Flag, "setLongValue", void.class, String.class, long.class);
+			Flag_setDoubleValue = Handle.findStaticMethodHandle(Flag, "setDoubleValue", void.class, String.class, double.class);
+			Flag_setBooleanValue = Handle.findStaticMethodHandle(Flag, "setBooleanValue", void.class, String.class, boolean.class);
+			Flag_setStringValue = Handle.findStaticMethodHandle(Flag, "setStringValue", void.class, String.class, String.class);
+			Flag_getValue = Handle.findSpecialMethodHandle(Flag, Flag, "getValue", Object.class);
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}
@@ -74,6 +96,14 @@ public abstract class VMEntry {
 		NATIVE_JVM_COMPRESSED_OOPS = compressed_oops;
 	}
 
+	/**
+	 * 使用反射调用ManagementFactory的工厂方法以获得相应的管理类单例
+	 * 
+	 * @param method_name
+	 * @param arg_types
+	 * @param args
+	 * @return
+	 */
 	public static Object invokeManagementFactory(String method_name, Class<?>[] arg_types, Object args) {
 		try {
 			return ManagementFactoryClass.getDeclaredMethod(method_name, arg_types).invoke(null, args);
@@ -101,6 +131,14 @@ public abstract class VMEntry {
 		return null;
 	}
 
+	/**
+	 * 使用反射调用VMManagement的方法
+	 * 
+	 * @param method_name
+	 * @param arg_types
+	 * @param args
+	 * @return
+	 */
 	public static Object invokeVMManagement(String method_name, Class<?>[] arg_types, Object args) {
 		try {
 			return Manipulator.invoke(VMManagement, method_name, arg_types, args);
@@ -110,6 +148,12 @@ public abstract class VMEntry {
 		return null;
 	}
 
+	/**
+	 * 使用反射获取系统的内建ClassLoader
+	 * 
+	 * @param class_loader_name
+	 * @return
+	 */
 	public static Object accessBuiltinClassLoaders(String class_loader_name) {
 		try {
 			return Manipulator.access(ClassLoaders, class_loader_name);
@@ -131,10 +175,22 @@ public abstract class VMEntry {
 		return null;
 	}
 
+	/**
+	 * 无视权限获取系统属性
+	 * 
+	 * @param key
+	 * @return
+	 */
 	public static String getSystemProperty(String key) {
 		return Properties.getProperty(key);
 	}
 
+	/**
+	 * 无视权限设置系统属性
+	 * 
+	 * @param key
+	 * @param value
+	 */
 	public static void setSystemProperty(String key, String value) {
 		Properties.setProperty(key, value);
 	}
@@ -147,10 +203,49 @@ public abstract class VMEntry {
 	 */
 	public static boolean getBooleanOption(String option_name) {
 		try {
-			return Boolean.parseBoolean(VMOption_getValue.invoke(getVMOption.invoke(HotSpotDiagnosticMXBean, option_name)).toString());
+			return Boolean.parseBoolean(VMOption_getValue.invoke(HotSpotDiagnosticMXBean_getVMOption.invoke(HotSpotDiagnosticMXBean, option_name)).toString());
 		} catch (IllegalAccessException | InvocationTargetException ex) {
 			ex.printStackTrace();
 		}
 		return false;
+	}
+
+	/**
+	 * 无视操作权限设置JVM的参数设置，必须自己确保value的类型与JVM的参数类型一致！调用的是native方法，但不是所有参数都支持运行时修改。大部分标志无法成功设置，因为检测可写标志在native方法内，无法干涉
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public static void setVMOption(String name, Object value) {
+		try {
+			Object flag = Flag_getFlag.invoke(name);
+			Object v = Flag_getValue.invoke(Flag.cast(flag));
+			VarHandle writeable = Handle.findVarHandle(Flag, "writeable", boolean.class);
+			writeable.set(flag, true);
+			if (v instanceof Long lv)
+				Flag_setLongValue.invokeExact(name, lv.longValue());
+			if (v instanceof Double dv)
+				Flag_setDoubleValue.invokeExact(name, dv.doubleValue());
+			if (v instanceof Boolean bv)
+				Flag_setBooleanValue.invokeExact(name, bv.booleanValue());
+			if (v instanceof String sv)
+				Flag_setStringValue.invokeExact(name, sv);
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * 获取当前JVM的进程ID（也称PID）
+	 * 
+	 * @return
+	 */
+	public static int getProcessId() {
+		try {
+			return (int) VMManagementImpl_getProcessId.invoke(VMManagementClass.cast(VMManagement));
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+		}
+		return -1;
 	}
 }

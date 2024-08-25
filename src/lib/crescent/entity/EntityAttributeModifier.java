@@ -25,14 +25,19 @@ import lib.crescent.utils.serialize.AutoSerializable;
 /**
  * 能记录对目标对象的属性值变更，用于追踪对目标的属性值更改了多少，例如可以用于死亡时复原实体的属性值
  */
-public class EntityAttributeModifier implements Listener, Serializable {
+public class EntityAttributeModifier implements Listener, Serializable, AutoSerializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7221589165257970392L;
 
+	@Override
+	public String toString() {
+		return "[Enternal attributes modified values=" + enternal_modified_entities.toString() + ", Clear-on-death attributes modified values=" + clear_on_death_modified_entities.toString() + "]";
+	}
+
 	// 某一个Attribute记录的所有实体以及对应修改值，只记录修改值，不实际对实体进行属性修改操作
-	protected class AttributeModifierEntityEntry implements Externalizable, AutoSerializable {
+	protected class AttributeModifierEntityEntry implements Externalizable {
 		/**
 		 * 
 		 */
@@ -46,6 +51,11 @@ public class EntityAttributeModifier implements Listener, Serializable {
 			this.attribute = Attribute.valueOf(attribute);
 			primary_values = new HashMap<>();
 			modifiers = new HashMap<>();
+		}
+
+		@Override
+		public String toString() {
+			return "[Attribute=" + attribute.getKey().getKey() + ", Primary values=" + primary_values.toString() + ", Modified values=" + modifiers.toString() + ']';
 		}
 
 		public Attribute getAttribute() {

@@ -65,25 +65,28 @@ public class AutoSerialization implements Listener {
 		auto_serialize = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
+				//System.out.println("Writing:\n"+serializable_map);
 				serializeAllObjects();
 			}
 		}, auto_serialize_time_in_tick, auto_serialize_time_in_tick);
 	}
 
-	public static void boot(String plugin_name, String serializable_datafolder, String serializable_map_filename, long auto_serialize_time_in_tick) {
-		auto_serialization_pluginset.put(plugin_name, new AutoSerialization(plugin_name, serializable_datafolder, serializable_map_filename, auto_serialize_time_in_tick));
+	public static AutoSerialization boot(String plugin_name, String serializable_datafolder, String serializable_map_filename, long auto_serialize_time_in_tick) {
+		AutoSerialization as = new AutoSerialization(plugin_name, serializable_datafolder, serializable_map_filename, auto_serialize_time_in_tick);
+		auto_serialization_pluginset.put(plugin_name, as);
+		return as;
 	}
 
-	public static void boot(String plugin_name, String serializable_datafolder, String serializable_map_filename) {
-		boot(plugin_name, serializable_datafolder, serializable_map_filename, DEFAULT_AUTOSERIALIZATION_TIME);
+	public static AutoSerialization boot(String plugin_name, String serializable_datafolder, String serializable_map_filename) {
+		return boot(plugin_name, serializable_datafolder, serializable_map_filename, DEFAULT_AUTOSERIALIZATION_TIME);
 	}
 
-	public static void boot(String plugin_name, String serializable_datafolder) {
-		boot(plugin_name, serializable_datafolder, null);
+	public static AutoSerialization boot(String plugin_name, String serializable_datafolder) {
+		return boot(plugin_name, serializable_datafolder, null);
 	}
 
-	public static void boot(String plugin_name) {
-		boot(plugin_name, "serializable_objects");
+	public static AutoSerialization boot(String plugin_name) {
+		return boot(plugin_name, "serializable_objects");
 	}
 
 	@EventHandler

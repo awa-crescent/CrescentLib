@@ -21,6 +21,11 @@ public class EntityRelatedObject<T> implements Listener, Serializable, AutoSeria
 	protected HashMap<UUID, T> enternal_related_object;
 	protected HashMap<UUID, T> clear_on_death_related_object;
 
+	@Override
+	public String toString() {
+		return "[Enternal related objects=" + enternal_related_object.toString() + ", Clear-on-death attributes related objects=" + clear_on_death_related_object.toString() + ']';
+	}
+
 	public EntityRelatedObject(String plugin_name) {
 		enternal_related_object = new HashMap<>();
 		clear_on_death_related_object = new HashMap<>();
