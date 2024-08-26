@@ -7,10 +7,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -20,8 +25,12 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import lib.crescent.Manipulator;
+import lib.crescent.VMEntry;
+
 public class AutoSerialization implements Listener {
 	public static final long DEFAULT_AUTOSERIALIZATION_TIME = 100;
+	private Plugin plugin;
 	private String serializable_map_filepath;
 	private HashMap<String, Serializable> serializable_map;
 	private BukkitTask auto_serialize;
@@ -40,9 +49,8 @@ public class AutoSerialization implements Listener {
 	 * @param serializable_datafolder     序列化对象的存放目录，始终在Plugin的getDataFolder()目录下
 	 * @param auto_serialize_time_in_tick 间隔多长时间自动序列化并写入文件，单位tick
 	 */
-	@SuppressWarnings("unchecked")
 	public AutoSerialization(String plugin_name, String serializable_datafolder, String serializable_map_filename, long auto_serialize_time_in_tick) {
-		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(plugin_name);
+		plugin = Bukkit.getServer().getPluginManager().getPlugin(plugin_name);
 		if (serializable_map_filename == "" || serializable_map_filename == null)
 			serializable_map_filename = "serializable_map";
 		String serializable_map_filefolder = plugin.getDataFolder().getAbsolutePath() + ((serializable_datafolder == null || serializable_datafolder == "") ? File.separator : File.separator + serializable_datafolder + File.separator);
@@ -58,14 +66,12 @@ public class AutoSerialization implements Listener {
 			original.createNewFile();
 		} catch (IOException ex) {
 		}
-		serializable_map = (HashMap<String, Serializable>) deserialize(serializable_map_filepath);// 存在序列化后的serializable_map则加载它，否则新建
-		if (serializable_map == null)
-			serializable_map = new HashMap<>();
+		deserializeAllObjects();
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		auto_serialize = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
-				//System.out.println("Writing:\n"+serializable_map);
+				System.out.println("Writing:\n" + serializable_map);
 				serializeAllObjects();
 			}
 		}, auto_serialize_time_in_tick, auto_serialize_time_in_tick);
@@ -155,7 +161,7 @@ public class AutoSerialization implements Listener {
 	 * 
 	 * @return
 	 */
-	protected AutoSerialization serializeAllObjects() {
+	protected synchronized AutoSerialization serializeAllObjects() {
 		serialize(serializable_map, buf_filepath_str);
 		try {
 			// 双缓冲
@@ -166,6 +172,46 @@ public class AutoSerialization implements Listener {
 			Bukkit.getLogger().log(Level.SEVERE, "AutoSerialization cannot swap buffer file for " + serializable_map_filepath, ex);
 		}
 		return this;
+	}
+
+	/**
+	 * 自动反序列化操作，如果储存的对象还实现了Listener接口，就给它注册监听器。这个对象的Listener将只能注册到启动该AutoSerialization的插件
+	 * 
+	 * @param file_path 序列化对象的文件地址
+	 * @return 反序列化的对象
+	 */
+	@SuppressWarnings("unchecked")
+	public AutoSerialization deserializeAllObjects() {
+		serializable_map = (HashMap<String, Serializable>) deserialize(serializable_map_filepath);// 存在序列化后的serializable_map则加载它，否则新建
+		if (serializable_map == null)
+			serializable_map = new HashMap<>();
+		else {
+			Set<Entry<String, Serializable>> serializable_set = serializable_map.entrySet();
+			for (Map.Entry<String, Serializable> serializable_entry : serializable_set) {
+				Serializable obj = serializable_entry.getValue();
+				doDeserializeOperationWithMemberFieldRecursively(obj, plugin);
+			}
+		}
+		return this;
+	}
+
+	protected static void doDeserializeOperationWithMemberFieldRecursively(Object obj, Plugin plugin) {
+		if (obj == null || VMEntry.isPrimitiveBoxingType(obj))
+			return;
+		if (obj instanceof Listener listener)
+			Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
+		if (obj instanceof AutoSerializable as)
+			as.onDeserialize(plugin);
+		Field[] fields = Manipulator.getDeclaredFields(obj.getClass());
+		for (Field field : fields)
+			try {
+				if (!Modifier.isStatic(field.getModifiers())) {
+					doDeserializeOperationWithMemberFieldRecursively(Manipulator.removeAccessCheck(field).get(obj), plugin);
+					Manipulator.recoveryAccessCheck(field);
+				}
+			} catch (IllegalArgumentException | IllegalAccessException ex) {
+				ex.printStackTrace();
+			}
 	}
 
 	/**
@@ -183,6 +229,7 @@ public class AutoSerialization implements Listener {
 			serializable_s.close();
 			serializable_file.close();
 		} catch (IOException | ClassNotFoundException ex) {
+			Bukkit.getLogger().log(Level.WARNING, "Dserialize " + file_path + " failed", ex);
 			obj = null;
 		}
 		return obj;
@@ -202,7 +249,7 @@ public class AutoSerialization implements Listener {
 			serializable_s.close();
 			serializable_files.close();
 		} catch (IOException ex) {
-			Bukkit.getLogger().log(Level.SEVERE, "Serialize " + file_path + " failed", ex);
+			Bukkit.getLogger().log(Level.WARNING, "Serialize " + file_path + " failed", ex);
 		}
 	}
 

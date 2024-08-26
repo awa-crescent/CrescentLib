@@ -183,6 +183,18 @@ public abstract class Manipulator {
 	}
 
 	/**
+	 * 恢复AccessibleObject的访问安全检查限制，使得对象访问遵循Java规则
+	 * 
+	 * @param <AO>
+	 * @param access_obj 要移除访问安全检查的对象
+	 * @return
+	 */
+	public static <AO extends AccessibleObject> AO recoveryAccessCheck(AO access_obj) {
+		unsafe.putBoolean(access_obj, java_lang_reflect_AccessibleObject_override_OFFSET, false);
+		return access_obj;
+	}
+
+	/**
 	 * 使用反射无视权限访问成员，如果是静态成员则传入Class<?>，非静态成员则传入对象本身，jdk.internal.reflect.Reflection会对反射获取的字段进行过滤，因此这些字段不能访问。如需访问使用Handle的方法进行
 	 * 
 	 * @param obj        非静态成员所属对象本身或静态成员对应的Class<?>
@@ -192,7 +204,7 @@ public abstract class Manipulator {
 	public static Object access(Object obj, String field_name) {
 		try {
 			Field field = Manipulator.removeAccessCheck(Reflect.getField(obj, field_name));
-			return field.get(Modifier.isStatic(field.getModifiers()) ? null : obj);
+			return field.get(obj);
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException ex) {
 			System.err.println("access failed. obj=" + obj.toString() + ", field_name=" + field_name);
 			ex.printStackTrace();
@@ -211,7 +223,7 @@ public abstract class Manipulator {
 	public static Object invoke(Object obj, String method_name, Class<?>[] arg_types, Object... args) {
 		try {
 			Method method = Manipulator.removeAccessCheck(Reflect.getMethod(obj, method_name, arg_types));
-			return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : obj, args);
+			return method.invoke(obj, args);
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException | InvocationTargetException ex) {
 			System.err.println("invoke failed. obj=" + obj.toString() + ", method_name=" + method_name);
 			ex.printStackTrace();

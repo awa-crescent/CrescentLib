@@ -1,6 +1,6 @@
 package lib.crescent;
 
-import lib.crescent.utils.reflex.JarUtils;
+import lib.crescent.utils.JarUtils;
 
 public class BlankMirrorKlassLoader {
 

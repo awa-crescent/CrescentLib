@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import lib.crescent.nms.core.RegistryManager;
-import lib.crescent.utils.reflex.JarUtils;
+import lib.crescent.utils.JarUtils;
 import net.minecraft.core.registries.Registries;
 
 @SuppressWarnings("deprecation")

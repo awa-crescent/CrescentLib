@@ -13,6 +13,12 @@ public class EntityRelatedIntValue extends EntityRelatedObject<Integer> {
 	public String toString() {
 		return "[Enternal related int=" + enternal_related_object.toString() + ", Clear-on-death attributes related int=" + clear_on_death_related_object.toString() + ']';
 	}
+	
+	//
+	@SuppressWarnings("unused")
+	private EntityRelatedIntValue() {
+		super();
+	}
 
 	public EntityRelatedIntValue(String plugin_name) {
 		super(plugin_name);

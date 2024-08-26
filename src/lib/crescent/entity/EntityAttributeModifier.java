@@ -37,7 +37,7 @@ public class EntityAttributeModifier implements Listener, Serializable, AutoSeri
 	}
 
 	// 某一个Attribute记录的所有实体以及对应修改值，只记录修改值，不实际对实体进行属性修改操作
-	protected class AttributeModifierEntityEntry implements Externalizable {
+	protected static class AttributeModifierEntityEntry implements Externalizable {
 		/**
 		 * 
 		 */
@@ -46,6 +46,12 @@ public class EntityAttributeModifier implements Listener, Serializable, AutoSeri
 		private Attribute attribute;
 		private HashMap<UUID, Double> primary_values;
 		private HashMap<UUID, Double> modifiers;
+
+		// 序列化使用
+		@SuppressWarnings("unused")
+		public AttributeModifierEntityEntry() {
+
+		}
 
 		public AttributeModifierEntityEntry(String attribute) {
 			this.attribute = Attribute.valueOf(attribute);
@@ -160,6 +166,12 @@ public class EntityAttributeModifier implements Listener, Serializable, AutoSeri
 	// 属性增加记录为正，减少记录为负。死亡后清除的会单独记录以减少遍历次数，提高性能
 	private HashMap<String, AttributeModifierEntityEntry> enternal_modified_entities;// 永久改变的值，死亡后保持（只有玩家能死亡后复活）
 	private HashMap<String, AttributeModifierEntityEntry> clear_on_death_modified_entities;// 死亡后将清除的值
+
+	// 序列化使用
+	@SuppressWarnings("unused")
+	private EntityAttributeModifier() {
+
+	}
 
 	/**
 	 * 构建一个能记录属性更改的对象，并且可以设置死亡后复原修改的属性（不会和别的EntityAttributeModifier对象行为冲突）。第一次修改某个属性时会记录修改前的原始值

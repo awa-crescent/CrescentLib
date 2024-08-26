@@ -40,6 +40,11 @@ public abstract class VMEntry {
 
 	private static final Class<?> ClassLoaders = null;
 
+	private static final boolean has_sa_jdi_jar = false;
+	public static final Class<?> VMClass = null;// sun.jvm.hotspot.runtime.VM
+	@SuppressWarnings("unused")
+	private static final Object VM = null;
+
 	static {
 		String bit_version = System.getProperty("sun.arch.data.model");
 		if (bit_version != null && bit_version.contains("64"))
@@ -72,6 +77,8 @@ public abstract class VMEntry {
 		} catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | SecurityException | IllegalArgumentException ex) {
 			hotspot = false;
 		}
+		NATIVE_JVM_HOTSPOT = hotspot;
+		NATIVE_JVM_COMPRESSED_OOPS = compressed_oops;
 		try {
 			Manipulator.setObjectValue(VMEntry.class, "RuntimeMXBean", invokeManagementFactory("getRuntimeMXBean"));
 			Manipulator.setObjectValue(VMEntry.class, "VMManagement", Manipulator.access(RuntimeMXBean, "jvm"));// 获取JVM管理类
@@ -89,11 +96,14 @@ public abstract class VMEntry {
 			Flag_setBooleanValue = Handle.findStaticMethodHandle(Flag, "setBooleanValue", void.class, String.class, boolean.class);
 			Flag_setStringValue = Handle.findStaticMethodHandle(Flag, "setStringValue", void.class, String.class, String.class);
 			Flag_getValue = Handle.findSpecialMethodHandle(Flag, Flag, "getValue", Object.class);
+			// 获取虚拟机实体VM
+			if (has_sa_jdi_jar) {
+				Manipulator.setObjectValue(VMEntry.class, "VMClass", Class.forName("sun.jvm.hotspot.runtime.VM"));
+				Manipulator.setObjectValue(VMEntry.class, "VM", Manipulator.invoke(VMClass, "getVM", null));
+			}
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}
-		NATIVE_JVM_HOTSPOT = hotspot;
-		NATIVE_JVM_COMPRESSED_OOPS = compressed_oops;
 	}
 
 	/**
@@ -229,7 +239,7 @@ public abstract class VMEntry {
 			if (v instanceof Boolean bv)
 				Flag_setBooleanValue.invokeExact(name, bv.booleanValue());
 			if (v instanceof String sv)
-				Flag_setStringValue.invokeExact(name, sv);
+				Flag_setStringValue.invokeExact(name, (String) sv);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}
@@ -247,5 +257,10 @@ public abstract class VMEntry {
 			ex.printStackTrace();
 		}
 		return -1;
+	}
+
+	public static boolean isPrimitiveBoxingType(Object obj) {
+		Class<?> cls = obj.getClass();
+		return cls == Character.class || cls == Boolean.class || (obj instanceof Number);
 	}
 }
