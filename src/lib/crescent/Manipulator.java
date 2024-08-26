@@ -186,7 +186,7 @@ public abstract class Manipulator {
 	 * 恢复AccessibleObject的访问安全检查限制，使得对象访问遵循Java规则
 	 * 
 	 * @param <AO>
-	 * @param access_obj 要移除访问安全检查的对象
+	 * @param access_obj 要恢复访问安全检查的对象
 	 * @return
 	 */
 	public static <AO extends AccessibleObject> AO recoveryAccessCheck(AO access_obj) {
@@ -356,5 +356,47 @@ public abstract class Manipulator {
 
 	public static boolean setBooleanValue(Object obj, String field, boolean value) {
 		return setBooleanValue(obj, Reflect.getField(obj, field), value);
+	}
+
+	public static boolean setIntValue(Object obj, Field field, int value) {
+		if (field == null)
+			return false;
+		if (Modifier.isStatic(field.getModifiers()))
+			unsafe.putInt(staticFieldBase(field), staticFieldOffset(field), value);
+		else
+			unsafe.putInt(obj, objectFieldOffset(field), value);
+		return true;
+	}
+
+	public static boolean setIntValue(Object obj, String field, int value) {
+		return setIntValue(obj, Reflect.getField(obj, field), value);
+	}
+
+	public static boolean setDoubleValue(Object obj, Field field, double value) {
+		if (field == null)
+			return false;
+		if (Modifier.isStatic(field.getModifiers()))
+			unsafe.putDouble(staticFieldBase(field), staticFieldOffset(field), value);
+		else
+			unsafe.putDouble(obj, objectFieldOffset(field), value);
+		return true;
+	}
+
+	public static boolean setDoubleValue(Object obj, String field, double value) {
+		return setDoubleValue(obj, Reflect.getField(obj, field), value);
+	}
+
+	public static boolean setFloatValue(Object obj, Field field, float value) {
+		if (field == null)
+			return false;
+		if (Modifier.isStatic(field.getModifiers()))
+			unsafe.putFloat(staticFieldBase(field), staticFieldOffset(field), value);
+		else
+			unsafe.putFloat(obj, objectFieldOffset(field), value);
+		return true;
+	}
+
+	public static boolean setFloatValue(Object obj, String field, float value) {
+		return setFloatValue(obj, Reflect.getField(obj, field), value);
 	}
 }

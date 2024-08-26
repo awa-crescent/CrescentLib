@@ -18,7 +18,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 import lib.crescent.Reflect;
-import lib.crescent.nms.Mappings;
+import lib.crescent.nms.MappingsEntry;
 import lib.crescent.tag.NamespacedKeyUtils;
 import lib.crescent.tag.Tag;
 
@@ -26,16 +26,16 @@ public class HolderSetUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T> List<Holder<T>> get_HolderSet_contents(HolderSet<T> holder_set) {
-		return (List<Holder<T>>) Reflect.getValue(holder_set, Mappings.net.minecraft.core.HolderSet.Named.contents);
+		return (List<Holder<T>>) Reflect.getValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"));
 	}
 
 	public static <T> boolean modify_HolderSet_contents(HolderSet<T> holder_set, List<Holder<T>> contents) {
 		boolean modify_result = false;
 		// HolderSet分两种，Named和Direct。两者均是ListBacked的子类，而ListBacked是唯一实现了HolderSet<T>接口的类。Named为有TagKey命名的冲突集合，Direct是没有TagKey的冲突集合。原版附魔冲突都是Named，而本库则不给冲突集合命名TagKey，因此是Direct
 		if (holder_set instanceof HolderSet.Named)
-			modify_result = Reflect.setValue(holder_set, Mappings.net.minecraft.core.HolderSet.Named.contents, contents);
+			modify_result = Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
 		else if (holder_set instanceof HolderSet.a) // HolderSet.Direct
-			modify_result = Reflect.setValue(holder_set, Mappings.net.minecraft.core.HolderSet.Direct.contents, contents) && Reflect.setValue(holder_set, Mappings.net.minecraft.core.HolderSet.Direct.contentsSet, null);
+			modify_result = Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Direct.contents"), contents) && Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Direct.contentsSet"), null);
 		return modify_result;
 	}
 

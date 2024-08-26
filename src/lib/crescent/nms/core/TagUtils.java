@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 
 import lib.crescent.Reflect;
-import lib.crescent.nms.Mappings;
+import lib.crescent.nms.MappingsEntry;
 import lib.crescent.tag.NamespacedKeyUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -56,12 +56,12 @@ public class TagUtils {
 				throw ex;
 			}
 			// 获取该目标成员引用的其他tag，并添加新tag后一起写入Holder$Reference.tags
-			Set<TagKey<T>> memb_tags = new HashSet<TagKey<T>>((Set<TagKey<T>>) Reflect.getValue(memb_holder, Mappings.net.minecraft.core.Holder.Reference.tags));// 复制holder所有的tags，更改后将替换原有的Holder$Reference.tags
+			Set<TagKey<T>> memb_tags = new HashSet<TagKey<T>>((Set<TagKey<T>>) Reflect.getValue(memb_holder, MappingsEntry.getObfuscatedName("net.minecraft.core.Holder$Reference.tags")));// 复制holder所有的tags，更改后将替换原有的Holder$Reference.tags
 			memb_tags.add((TagKey<T>) tag_key);// 添加新的自定义的tag_key，如果已经存在则忽略
-			Reflect.setValue(memb_holder, Mappings.net.minecraft.core.Holder.Reference.tags, memb_tags);
+			Reflect.setValue(memb_holder, MappingsEntry.getObfuscatedName("net.minecraft.core.Holder$Reference.tags"), memb_tags);
 			contents.add(memb_holder);
 		}
-		Reflect.setValue(tag_members, Mappings.net.minecraft.core.HolderSet.Named.contents, contents);// Tag具有名称TagKey，因此一定是HolderSet.Named
+		Reflect.setValue(tag_members, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);// Tag具有名称TagKey，因此一定是HolderSet.Named
 		return tag_members;
 	}
 
@@ -119,7 +119,7 @@ public class TagUtils {
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));
 		contents.add(holder_reference);
-		return Reflect.setValue(holder_set, Mappings.net.minecraft.core.HolderSet.Named.contents, contents);
+		return Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class TagUtils {
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));
 		contents.remove(holder_reference);
-		return Reflect.setValue(holder_set, Mappings.net.minecraft.core.HolderSet.Named.contents, contents);
+		return Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
 	}
 
 	public static <T> boolean removeTag(ResourceKey<? extends IRegistry<T>> resource_key, String namespaced_tag, Holder.c<T> holder_reference) {

@@ -2,6 +2,7 @@ package lib.crescent.event;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -26,12 +27,12 @@ public class EventUtils {
 		Field[] fields = Manipulator.getDeclaredFields(obj.getClass());
 		for (Field field : fields)
 			try {
-				if (!Modifier.isStatic(field.getModifiers()) || register_static_member) {
-					registerListenerWithMemberFieldRecursively(Manipulator.removeAccessCheck(field).get(obj), plugin, register_static_member);
-					Manipulator.recoveryAccessCheck(field);
-				}
+				Object field_obj = Manipulator.removeAccessCheck(field).get(obj);
+				if ((obj != field_obj) && (!Modifier.isStatic(field.getModifiers()) || register_static_member))
+					registerListenerWithMemberFieldRecursively(field_obj, plugin, register_static_member);
+				Manipulator.recoveryAccessCheck(field);
 			} catch (IllegalArgumentException | IllegalAccessException ex) {
-				ex.printStackTrace();
+				Bukkit.getLogger().log(Level.WARNING, "Register Listener for member field " + field + " failed", ex);
 			}
 	}
 }

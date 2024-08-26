@@ -8,28 +8,37 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
 
 import lib.crescent.Reflect;
-import lib.crescent.nms.Mappings;
+import lib.crescent.nms.MappingsEntry;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.World;
+import net.minecraft.world.level.dimension.DimensionManager;
 
 public class RegistryManager {
 	public static final MinecraftServer server;
 
 	public static final IRegistry<Enchantment> enchantment_registry;
 	public static final IRegistry<Item> item_registry;
+	public static final IRegistry<World> dimension_registry;
+	public static final IRegistry<DimensionManager> dimension_manager_registry;
 
 	private static HashMap<ResourceKey<? extends IRegistry<?>>, Boolean> registry_frozen_entries = new HashMap<>();
 
 	static {
+		System.out.println(MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.frozen"));
 		server = ((CraftServer) Bukkit.getServer()).getServer();
-		enchantment_registry = (IRegistry<Enchantment>) getRegistry(Registries.ENCHANTMENT);
-		item_registry = (IRegistry<Item>) getRegistry(Registries.ITEM);
+		enchantment_registry = getRegistry(Registries.ENCHANTMENT);
 		registry_frozen_entries.put(Registries.ENCHANTMENT, true);
+		item_registry = getRegistry(Registries.ITEM);
 		registry_frozen_entries.put(Registries.ITEM, true);
+		dimension_registry = getRegistry(Registries.DIMENSION);
+		registry_frozen_entries.put(Registries.DIMENSION, true);
+		dimension_manager_registry = getRegistry(Registries.DIMENSION_TYPE);
+		registry_frozen_entries.put(Registries.DIMENSION_TYPE, true);
 	}
 
 	/**
@@ -58,7 +67,7 @@ public class RegistryManager {
 	 * @return 操作是否成功
 	 */
 	public static <T> boolean unfreezeRegistry(IRegistry<T> registry) {
-		return Reflect.setValue(registry, Mappings.net.minecraft.core.MappedRegistry.frozen, false) && Reflect.setValue(registry, Mappings.net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders, new IdentityHashMap<>());
+		return Reflect.setValue(registry, MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.frozen"), false) && Reflect.setValue(registry, MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders"), new IdentityHashMap<>());
 	}
 
 	/**

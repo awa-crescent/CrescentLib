@@ -71,7 +71,6 @@ public class AutoSerialization implements Listener {
 		auto_serialize = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("Writing:\n" + serializable_map);
 				serializeAllObjects();
 			}
 		}, auto_serialize_time_in_tick, auto_serialize_time_in_tick);
@@ -188,29 +187,28 @@ public class AutoSerialization implements Listener {
 		else {
 			Set<Entry<String, Serializable>> serializable_set = serializable_map.entrySet();
 			for (Map.Entry<String, Serializable> serializable_entry : serializable_set) {
-				Serializable obj = serializable_entry.getValue();
-				doDeserializeOperationWithMemberFieldRecursively(obj, plugin);
+				doDeserializeOperationWithMemberFieldRecursively(serializable_entry.getKey(), serializable_entry.getValue(), plugin);
 			}
 		}
 		return this;
 	}
 
-	protected static void doDeserializeOperationWithMemberFieldRecursively(Object obj, Plugin plugin) {
+	protected static void doDeserializeOperationWithMemberFieldRecursively(String ref_name, Object obj, Plugin plugin) {
 		if (obj == null || VMEntry.isPrimitiveBoxingType(obj))
 			return;
 		if (obj instanceof Listener listener)
 			Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
 		if (obj instanceof AutoSerializable as)
-			as.onDeserialize(plugin);
+			as.onDeserialize(ref_name, plugin);
 		Field[] fields = Manipulator.getDeclaredFields(obj.getClass());
 		for (Field field : fields)
 			try {
-				if (!Modifier.isStatic(field.getModifiers())) {
-					doDeserializeOperationWithMemberFieldRecursively(Manipulator.removeAccessCheck(field).get(obj), plugin);
-					Manipulator.recoveryAccessCheck(field);
-				}
+				Object field_obj = Manipulator.removeAccessCheck(field).get(obj);
+				if ((obj != field_obj) && (!Modifier.isStatic(field.getModifiers())))
+					doDeserializeOperationWithMemberFieldRecursively(ref_name, field_obj, plugin);
+				Manipulator.recoveryAccessCheck(field);
 			} catch (IllegalArgumentException | IllegalAccessException ex) {
-				ex.printStackTrace();
+				Bukkit.getLogger().log(Level.WARNING, "Recursively do on-deserialize operation on " + field + " failed", ex);
 			}
 	}
 

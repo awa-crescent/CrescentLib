@@ -14,7 +14,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import lib.crescent.Manipulator;
 import lib.crescent.Reflect;
 import lib.crescent.enchantment.EnchantmentEntry;
-import lib.crescent.nms.Mappings;
+import lib.crescent.nms.MappingsEntry;
 import lib.crescent.nms.NMSEntry_v1_21_R1;
 import lib.crescent.nms.core.HolderSetUtils;
 import lib.crescent.nms.core.RegistryManager;
@@ -239,7 +239,7 @@ public class NMSEnchantment {
 		if (exclusive_set == null || exclusive_set.isEmpty())// 如果待添加的冲突集合为空则直接返回成功
 			return true;
 		HolderSet<Enchantment> nms_exclusive_set = getExclusiveSet(namespaced_enchantment_id);
-		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, Mappings.net.minecraft.core.HolderSet.Named.contents));
+		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents")));
 		for (String en : exclusive_set)
 			contents.add(getReference(en));
 		return HolderSetUtils.modify_HolderSet_contents(nms_exclusive_set, contents);
@@ -255,7 +255,7 @@ public class NMSEnchantment {
 		if (exclusive_set == null || exclusive_set.isEmpty())// 如果待添加的冲突集合为空则直接返回成功
 			return true;
 		HolderSet<Enchantment> nms_exclusive_set = getExclusiveSet(namespaced_enchantment_id);
-		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, Mappings.net.minecraft.core.HolderSet.Named.contents));
+		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents")));
 		for (String en : exclusive_set)
 			contents.remove(getReference(en));
 		return HolderSetUtils.modify_HolderSet_contents(nms_exclusive_set, contents);
@@ -305,21 +305,21 @@ public class NMSEnchantment {
 		applyTags();
 	}
 
-//以下是修改Enchantment成员的工具函数
+	// 以下是修改Enchantment成员的工具函数
 	@SuppressWarnings("unchecked")
 	public static HolderSet<Enchantment> get_Enchantment_exclusiveSet(Enchantment enchantment) {
-		return (HolderSet<Enchantment>) Reflect.getValue(enchantment, Mappings.net.minecraft.world.item.enchantment.Enchantment.exclusiveSet);
+		return (HolderSet<Enchantment>) Reflect.getValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.exclusiveSet"));
 	}
 
 	public static boolean set_Enchantment_exclusiveSet(Enchantment enchantment, HolderSet<Enchantment> exclusive_set) {
-		return Manipulator.setObjectValue(enchantment, Mappings.net.minecraft.world.item.enchantment.Enchantment.exclusiveSet, exclusive_set);
+		return Manipulator.setObjectValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.exclusiveSet"), exclusive_set);
 	}
 
 	public static Enchantment.c get_Enchantment_definition(Enchantment enchantment) {
-		return (Enchantment.c) Reflect.getValue(enchantment, Mappings.net.minecraft.world.item.enchantment.Enchantment.definition);
+		return (Enchantment.c) Reflect.getValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.definition"));
 	}
 
 	public static boolean set_Enchantment_definition(Enchantment enchantment, Enchantment.c definition) {
-		return Manipulator.setObjectValue(enchantment, Mappings.net.minecraft.world.item.enchantment.Enchantment.definition, definition);
+		return Manipulator.setObjectValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.definition"), definition);
 	}
 }

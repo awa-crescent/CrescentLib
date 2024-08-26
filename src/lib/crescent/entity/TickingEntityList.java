@@ -9,5 +9,4 @@ public abstract class TickingEntityList {
 	static {
 		entities = new HashMap<>();
 	}
-
 }

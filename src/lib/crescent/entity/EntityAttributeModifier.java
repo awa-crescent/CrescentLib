@@ -48,7 +48,6 @@ public class EntityAttributeModifier implements Listener, Serializable, AutoSeri
 		private HashMap<UUID, Double> modifiers;
 
 		// 序列化使用
-		@SuppressWarnings("unused")
 		public AttributeModifierEntityEntry() {
 
 		}
