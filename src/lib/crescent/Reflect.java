@@ -17,6 +17,15 @@ import org.bukkit.Bukkit;
  */
 public abstract class Reflect {
 
+	public static Class<?> getClassForName(String name) {
+		try {
+			return Class.forName(name);
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
 	/**
 	 * 查询类成员，如果该类没有则递归查找父类
 	 */
@@ -30,7 +39,12 @@ public abstract class Reflect {
 			return cls.getDeclaredField(name);
 		} catch (NoSuchFieldException ex) {
 			Class<?> supercls = cls.getSuperclass();
-			return supercls == null ? null : getField(supercls, name);
+			if (supercls == null) {
+				System.err.println("Cannot find field " + name);
+				ex.printStackTrace();
+				return null;
+			} else
+				return getField(supercls, name);
 		}
 	}
 
@@ -77,7 +91,12 @@ public abstract class Reflect {
 			return cls.getDeclaredMethod(name, arg_types == null ? (new Class<?>[] {}) : arg_types);
 		} catch (NoSuchMethodException ex) {
 			Class<?> supercls = cls.getSuperclass();
-			return supercls == null ? null : getMethod(supercls, name, arg_types);
+			if (supercls == null) {
+				System.err.println("Cannot find method " + name);
+				ex.printStackTrace();
+				return null;
+			} else
+				return getMethod(supercls, name, arg_types);
 		}
 	}
 

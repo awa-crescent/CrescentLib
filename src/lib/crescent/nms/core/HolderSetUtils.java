@@ -8,6 +8,9 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
+import lib.crescent.Reflect;
+import lib.crescent.nms.NMSManipulator;
+import lib.crescent.tag.Tag;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
@@ -17,25 +20,20 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
-import lib.crescent.Reflect;
-import lib.crescent.nms.MappingsEntry;
-import lib.crescent.tag.NamespacedKeyUtils;
-import lib.crescent.tag.Tag;
-
 public class HolderSetUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T> List<Holder<T>> get_HolderSet_contents(HolderSet<T> holder_set) {
-		return (List<Holder<T>>) Reflect.getValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"));
+		return (List<Holder<T>>) NMSManipulator.access(holder_set, "net.minecraft.core.HolderSet$Named.contents");
 	}
 
 	public static <T> boolean modify_HolderSet_contents(HolderSet<T> holder_set, List<Holder<T>> contents) {
 		boolean modify_result = false;
 		// HolderSet分两种，Named和Direct。两者均是ListBacked的子类，而ListBacked是唯一实现了HolderSet<T>接口的类。Named为有TagKey命名的冲突集合，Direct是没有TagKey的冲突集合。原版附魔冲突都是Named，而本库则不给冲突集合命名TagKey，因此是Direct
 		if (holder_set instanceof HolderSet.Named)
-			modify_result = Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
+			modify_result = NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Named.contents", contents);
 		else if (holder_set instanceof HolderSet.a) // HolderSet.Direct
-			modify_result = Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Direct.contents"), contents) && Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Direct.contentsSet"), null);
+			modify_result = NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Direct.contents", contents) && NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Direct.contentsSet", null);
 		return modify_result;
 	}
 
@@ -59,7 +57,7 @@ public class HolderSetUtils {
 		IRegistry<T> registry = RegistryManager.getRegistry(resource_key);// 获取resource_key的注册表
 		List<Holder<T>> contents = new ArrayList<>();
 		for (String memb : namespaced_members) {
-			MinecraftKey nms_key = NamespacedKeyUtils.getResourceLocationFromNamespacedID(memb);
+			MinecraftKey nms_key = ResourceLocation.getResourceLocationFromNamespacedID(memb);
 			Holder.c<T> memb_holder;// memb_holder类型为Holder$Reference，表示要添加的目标成员引用
 			try {
 				memb_holder = registry.getHolder(nms_key).orElseThrow();// 获取要添加的目标成员引用，目标不存在则抛出异常

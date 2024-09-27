@@ -38,6 +38,15 @@ public class EntityUtils {
 			entity.setHealth(max_health);
 	}
 
+	public static void damageEntity(LivingEntity entity, double damage_health) {
+		double new_health = entity.getHealth() - damage_health;
+		if (new_health < 0)
+			entity.setHealth(0);
+		else
+			entity.setHealth(new_health);
+		entity.playHurtAnimation(0);
+	}
+
 	public static LivingEntity getDamageSourceEntity(Entity entity) {
 		LivingEntity target = null;
 		if (entity instanceof LivingEntity damager)
@@ -102,6 +111,12 @@ public class EntityUtils {
 		Collection<? extends Player> players = getAllPlayers(world);
 		for (Player player : players)
 			player.playSound(player.getLocation(), sound, volume, 0);
+	}
+
+	public static void playSoundToNearbyPlayers(Entity entity, Sound sound, double x_offset, double y_offset, double z_offset, float volume) {
+		List<Player> nearby_players = getNearbySpecifiedEntities(entity, x_offset, y_offset, z_offset, Player.class);
+		for (Player nearby_player : nearby_players)
+			nearby_player.playSound(nearby_player.getLocation(), sound, volume, 0);
 	}
 
 	/**

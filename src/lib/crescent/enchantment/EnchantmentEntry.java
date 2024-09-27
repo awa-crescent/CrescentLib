@@ -57,6 +57,9 @@ public class EnchantmentEntry extends Enchantment implements Listener {
 
 	private boolean has_casted_nms = false;
 	private NMSEnchantment nms_enchantment;
+	
+	public static HashMap<String,Integer> min_levels;
+	public static HashMap<String,Integer> enchantment_values;
 
 	/**
 	 * 
@@ -130,6 +133,18 @@ public class EnchantmentEntry extends Enchantment implements Listener {
 
 	public final Set<String> getExclusiveSet() {
 		return exclusive_set;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected final void setExclusiveSet(Set<String> set) {
+		if (set instanceof TreeSet tree_set)
+			this.exclusive_set = tree_set;
+		else
+			this.exclusive_set = new TreeSet<String>(set);
+	}
+
+	protected final void setExclusiveSet(String... exclusive_enchantments) {
+		setExclusiveSet(Set.of(exclusive_enchantments));
 	}
 
 	public final Tag getSupportedItems() {

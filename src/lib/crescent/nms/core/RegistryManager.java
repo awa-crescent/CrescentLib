@@ -5,40 +5,42 @@ import java.util.IdentityHashMap;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
 
-import lib.crescent.Reflect;
-import lib.crescent.nms.MappingsEntry;
+import lib.crescent.nms.NMSManipulator;
+import lib.crescent.nms.ServerEntry;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.biome.BiomeBase;
 import net.minecraft.world.level.dimension.DimensionManager;
+import net.minecraft.world.level.dimension.WorldDimension;
 
 public class RegistryManager {
-	public static final MinecraftServer server;
 
-	public static final IRegistry<Enchantment> enchantment_registry;
-	public static final IRegistry<Item> item_registry;
-	public static final IRegistry<World> dimension_registry;
-	public static final IRegistry<DimensionManager> dimension_manager_registry;
+	public static final IRegistry<Enchantment> enchantment;
+	public static final IRegistry<Item> item;
+	public static final IRegistry<World> dimension;
+	public static final IRegistry<WorldDimension> level_stem;
+	public static final IRegistry<DimensionManager> dimension_type;
+	public static final IRegistry<BiomeBase> biome;
 
 	private static HashMap<ResourceKey<? extends IRegistry<?>>, Boolean> registry_frozen_entries = new HashMap<>();
 
 	static {
-		System.out.println(MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.frozen"));
-		server = ((CraftServer) Bukkit.getServer()).getServer();
-		enchantment_registry = getRegistry(Registries.ENCHANTMENT);
-		registry_frozen_entries.put(Registries.ENCHANTMENT, true);
-		item_registry = getRegistry(Registries.ITEM);
-		registry_frozen_entries.put(Registries.ITEM, true);
-		dimension_registry = getRegistry(Registries.DIMENSION);
-		registry_frozen_entries.put(Registries.DIMENSION, true);
-		dimension_manager_registry = getRegistry(Registries.DIMENSION_TYPE);
-		registry_frozen_entries.put(Registries.DIMENSION_TYPE, true);
+		enchantment = loadRegistry(Registries.ENCHANTMENT);
+		item = loadRegistry(Registries.ITEM);
+		dimension = loadRegistry(Registries.DIMENSION);
+		dimension_type = loadRegistry(Registries.DIMENSION_TYPE);
+		level_stem = loadRegistry(Registries.LEVEL_STEM);
+		biome = loadRegistry(Registries.BIOME);
+	}
+
+	private static <T> IRegistry<T> loadRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
+		registry_frozen_entries.put(resource_key, true);
+		return getRegistry(resource_key);
 	}
 
 	/**
@@ -50,7 +52,7 @@ public class RegistryManager {
 	public static <T> IRegistry<T> getRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
 		IRegistry<T> registry = null;
 		try {
-			registry = server.registryAccess().registry(resource_key).orElseThrow();
+			registry = ServerEntry.server.registryAccess().registry(resource_key).orElseThrow();
 		} catch (Exception ex) {
 			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry of " + resource_key, ex);
 		}
@@ -67,7 +69,7 @@ public class RegistryManager {
 	 * @return 操作是否成功
 	 */
 	public static <T> boolean unfreezeRegistry(IRegistry<T> registry) {
-		return Reflect.setValue(registry, MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.frozen"), false) && Reflect.setValue(registry, MappingsEntry.getObfuscatedName("net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders"), new IdentityHashMap<>());
+		return NMSManipulator.setBooleanValue(registry, "net.minecraft.core.MappedRegistry.frozen", false) && NMSManipulator.setObjectValue(registry, "net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders", new IdentityHashMap<>());
 	}
 
 	/**
@@ -75,7 +77,7 @@ public class RegistryManager {
 	 * 
 	 * @return 操作是否成功
 	 */
-	public static <T> boolean unfreezeRegistry(ResourceKey<IRegistry<T>> resource_key) {
+	public static <T> boolean unfreezeRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
 		boolean op_state = unfreezeRegistry(getRegistry(resource_key));
 		registry_frozen_entries.put(resource_key, !op_state);
 		return op_state;
@@ -86,7 +88,7 @@ public class RegistryManager {
 	 * 
 	 * @return 操作是否成功
 	 */
-	public static <T> void freezeRegistry(ResourceKey<IRegistry<T>> resource_key) {
+	public static <T> void freezeRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
 		getRegistry(resource_key).freeze();
 		registry_frozen_entries.put(resource_key, true);
 	}

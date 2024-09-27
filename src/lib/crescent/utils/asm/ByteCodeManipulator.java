@@ -2,11 +2,14 @@ package lib.crescent.utils.asm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class ByteCodeManipulator {
@@ -16,6 +19,8 @@ public class ByteCodeManipulator {
 
 	protected ArrayList<String> fileds_to_be_removed;
 	protected ArrayList<FieldInfo> fileds_to_be_added;
+	protected ArrayList<MethodInfo> methods_to_be_removed;
+	protected HashMap<MethodInfo, MethodOperator> methods_to_be_modified;
 
 	protected ByteCodeManipulator(byte[] bytecode) {
 		original_bytecode = bytecode;
@@ -38,11 +43,15 @@ public class ByteCodeManipulator {
 		return this;
 	}
 
-	/**
-	 * 子类重写该方法以修改字节码
-	 */
-	protected void modify() {
-
+	public ByteCodeManipulator removeMethods(String... method_declarations) {
+		for (String decl : method_declarations)
+			methods_to_be_removed.add(MethodInfo.from(decl));
+		return this;
+	}
+	
+	public ByteCodeManipulator modifyMethod(String method_declaration,MethodOperator modifier) {
+		methods_to_be_modified.put(MethodInfo.from(method_declaration),modifier);
+		return this;
 	}
 
 	public byte[] toByteCode() {
@@ -52,6 +61,27 @@ public class ByteCodeManipulator {
 				if (fileds_to_be_removed.contains(name))
 					return null;
 				return cv.visitField(access, name, desc, signature, value);
+			}
+
+			@Override
+			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+				MethodVisitor mv=null;
+				for (Entry<MethodInfo, MethodOperator> entry : methods_to_be_modified.entrySet()) {
+					MethodInfo info = entry.getKey();
+					if (info.getMethodName() == name && info.getMethodDescriptor() == desc) {
+						mv = cv.visitMethod(access, name, desc, signature, exceptions);
+						mv.visitCode();
+						entry.getValue().modify(info, mv);
+						mv.visitMaxs(255, 255);
+						mv.visitEnd();
+					}
+				}
+				for (MethodInfo info : methods_to_be_removed)
+					if (info.getMethodName() == name && info.getMethodDescriptor() == desc)
+						return null;
+				if(mv==null)
+					mv=cv.visitMethod(access, name, desc, signature, exceptions);
+				return mv;
 			}
 
 			@Override

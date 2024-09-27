@@ -1,0 +1,6 @@
+name: CrescentLib
+author: Crescent
+main: lib.crescent.CrescentLib
+version: 1.0.0
+api-version: 1.19
+load: STARTUP

@@ -102,9 +102,9 @@ public abstract class Manipulator {
 	 * @param clazz 要获取的类
 	 * @return 字段列表
 	 */
-	public static Field[] getDeclaredMethods(Class<?> clazz) {
+	public static Method[] getDeclaredMethods(Class<?> clazz) {
 		try {
-			return (Field[]) getDeclaredMethods0.invokeExact(clazz, false);
+			return (Method[]) getDeclaredMethods0.invokeExact(clazz, false);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}
@@ -203,8 +203,11 @@ public abstract class Manipulator {
 	 */
 	public static Object access(Object obj, String field_name) {
 		try {
-			Field field = Manipulator.removeAccessCheck(Reflect.getField(obj, field_name));
-			return field.get(obj);
+			Field f = Reflect.getField(obj, field_name);
+			if (f != null) {
+				Field field = Manipulator.removeAccessCheck(f);
+				return field.get(obj);
+			}
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException ex) {
 			System.err.println("access failed. obj=" + obj.toString() + ", field_name=" + field_name);
 			ex.printStackTrace();
@@ -302,8 +305,24 @@ public abstract class Manipulator {
 	public static Object getConstantPool(Class<?> clazz) {
 		try {
 			return getConstantPool.invoke(JavaLangAccess, clazz);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException | InvocationTargetException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 不调用构造函数创建一个对象
+	 * 
+	 * @param cls 对象类
+	 * @return 分配的对象
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T allocateInstance(Class<T> cls) {
+		try {
+			return (T) unsafe.allocateInstance(cls);
+		} catch (InstantiationException ex) {
+			ex.printStackTrace();
 		}
 		return null;
 	}
@@ -328,6 +347,19 @@ public abstract class Manipulator {
 
 	public static boolean setObjectValue(Object obj, String field, Object value) {
 		return setObjectValue(obj, Reflect.getField(obj, field), value);
+	}
+
+	public static Object getObjectValue(Object obj, Field field) {
+		if (field == null)
+			return false;
+		if (Modifier.isStatic(field.getModifiers()))
+			return unsafe.getObject(staticFieldBase(field), staticFieldOffset(field));
+		else
+			return unsafe.getObject(obj, objectFieldOffset(field));
+	}
+
+	public static Object getObjectValue(Object obj, String field) {
+		return getObjectValue(obj, Reflect.getField(obj, field));
 	}
 
 	public static boolean setLongValue(Object obj, Field field, long value) {

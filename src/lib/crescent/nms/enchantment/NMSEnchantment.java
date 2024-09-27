@@ -11,16 +11,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_21_R1.enchantments.CraftEnchantment;
 import org.bukkit.inventory.EquipmentSlot;
 
-import lib.crescent.Manipulator;
-import lib.crescent.Reflect;
 import lib.crescent.enchantment.EnchantmentEntry;
-import lib.crescent.nms.MappingsEntry;
-import lib.crescent.nms.NMSEntry_v1_21_R1;
+import lib.crescent.nms.NMSManipulator;
+import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.core.HolderSetUtils;
 import lib.crescent.nms.core.RegistryManager;
 import lib.crescent.nms.core.ResourceLocation;
 import lib.crescent.nms.core.TagUtils;
-import lib.crescent.tag.NamespacedKeyUtils;
 import lib.crescent.tag.Tag;
 import lib.crescent.utils.format.FormattingStyle;
 import net.minecraft.core.Holder;
@@ -35,7 +32,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 /**
  * NMS附魔类，作为不使用Spigot API的备用方案
  */
-@SuppressWarnings("deprecation")
 public class NMSEnchantment {
 	protected final String namespace;// 附魔的命名空间，原版附魔的命名空间为minecraft
 	protected final String enchantment_id;// 附魔的id
@@ -75,14 +71,14 @@ public class NMSEnchantment {
 		this.namespace = namespace == null ? "minecraft" : namespace;// 命名空间为空则默认为minecraft空间
 		this.local_name = local_name;
 		this.description_style = description_style;
-		this.description = NMSEntry_v1_21_R1.getComponent(local_name, description_style);
+		this.description = ServerEntry.getComponent(local_name, description_style);
 		this.tags = tags == null ? new HashSet<TagKey<Enchantment>>() : getTagKeysFrom(tags);
 		this.exclusive_set = exclusive_set == null || exclusive_set instanceof TreeSet ? (TreeSet<String>) exclusive_set : new TreeSet<String>(exclusive_set);
 		DataComponentMap nms_effects = DataComponentMap.builder().build();
 		// 附魔定义类net.minecraft.world.item.enchantment.Enchantment$EnchantmentDefinition未反混淆时为Enchantment.c
 		this.definition = new NMSEnchantmentDefinition(supported_items, primary_items, weight, max_level, min_cost, max_cost, anvil_cost, slots);
 		this.enchantment = new Enchantment(this.description, this.definition.castToNMSEnchantmentDefinition(), HolderSet.direct(), nms_effects);
-		this.reference = RegistryManager.enchantment_registry.createIntrusiveHolder(this.enchantment);
+		this.reference = RegistryManager.enchantment.createIntrusiveHolder(this.enchantment);
 	}
 
 	/**
@@ -93,7 +89,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespace, String enchantment_id) {
-		return RegistryManager.enchantment_registry.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace, enchantment_id)).orElse(null);
+		return RegistryManager.enchantment.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace, enchantment_id)).orElse(null);
 	}
 
 	/**
@@ -103,8 +99,8 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespaced_enchantment_id) {
-		String[] namespace_id = NamespacedKeyUtils.parseNamespacedID(namespaced_enchantment_id);
-		return RegistryManager.enchantment_registry.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace_id[0], namespace_id[1])).orElse(null);
+		String[] namespace_id = ResourceLocation.parseNamespacedID(namespaced_enchantment_id);
+		return RegistryManager.enchantment.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace_id[0], namespace_id[1])).orElse(null);
 	}
 
 	/**
@@ -176,7 +172,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔对象，即Enchantment对象
 	 */
 	public static Enchantment getEnchantment(String namespaced_enchantment_id) {
-		return RegistryManager.enchantment_registry.get(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespaced_enchantment_id));
+		return RegistryManager.enchantment.get(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespaced_enchantment_id));
 	}
 
 	public static HolderSet<Enchantment> getExclusiveSet(String namespaced_enchantment_id) {
@@ -239,7 +235,7 @@ public class NMSEnchantment {
 		if (exclusive_set == null || exclusive_set.isEmpty())// 如果待添加的冲突集合为空则直接返回成功
 			return true;
 		HolderSet<Enchantment> nms_exclusive_set = getExclusiveSet(namespaced_enchantment_id);
-		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents")));
+		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) NMSManipulator.access(nms_exclusive_set, "net.minecraft.core.HolderSet$Named.contents"));
 		for (String en : exclusive_set)
 			contents.add(getReference(en));
 		return HolderSetUtils.modify_HolderSet_contents(nms_exclusive_set, contents);
@@ -255,7 +251,7 @@ public class NMSEnchantment {
 		if (exclusive_set == null || exclusive_set.isEmpty())// 如果待添加的冲突集合为空则直接返回成功
 			return true;
 		HolderSet<Enchantment> nms_exclusive_set = getExclusiveSet(namespaced_enchantment_id);
-		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) Reflect.getValue(nms_exclusive_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents")));
+		List<Holder<Enchantment>> contents = new ArrayList<>((List<Holder<Enchantment>>) NMSManipulator.access(nms_exclusive_set, "net.minecraft.core.HolderSet$Named.contents"));
 		for (String en : exclusive_set)
 			contents.remove(getReference(en));
 		return HolderSetUtils.modify_HolderSet_contents(nms_exclusive_set, contents);
@@ -300,7 +296,7 @@ public class NMSEnchantment {
 	 * 注册该附魔并完成注册后的动作，包括修改tag、冲突附魔
 	 */
 	public void register() {
-		IRegistry.register(RegistryManager.enchantment_registry, namespace + ':' + enchantment_id, enchantment);
+		IRegistry.register(RegistryManager.enchantment, namespace + ':' + enchantment_id, enchantment);
 		// 注册后才能修改tag和冲突附魔
 		applyTags();
 	}
@@ -308,18 +304,18 @@ public class NMSEnchantment {
 	// 以下是修改Enchantment成员的工具函数
 	@SuppressWarnings("unchecked")
 	public static HolderSet<Enchantment> get_Enchantment_exclusiveSet(Enchantment enchantment) {
-		return (HolderSet<Enchantment>) Reflect.getValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.exclusiveSet"));
+		return (HolderSet<Enchantment>) NMSManipulator.access(enchantment, "net.minecraft.world.item.enchantment.Enchantment.exclusiveSet");
 	}
 
 	public static boolean set_Enchantment_exclusiveSet(Enchantment enchantment, HolderSet<Enchantment> exclusive_set) {
-		return Manipulator.setObjectValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.exclusiveSet"), exclusive_set);
+		return NMSManipulator.setObjectValue(enchantment, "net.minecraft.world.item.enchantment.Enchantment.exclusiveSet", exclusive_set);
 	}
 
 	public static Enchantment.c get_Enchantment_definition(Enchantment enchantment) {
-		return (Enchantment.c) Reflect.getValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.definition"));
+		return (Enchantment.c) NMSManipulator.access(enchantment, "net.minecraft.world.item.enchantment.Enchantment.definition");
 	}
 
 	public static boolean set_Enchantment_definition(Enchantment enchantment, Enchantment.c definition) {
-		return Manipulator.setObjectValue(enchantment, MappingsEntry.getObfuscatedName("net.minecraft.world.item.enchantment.Enchantment.definition"), definition);
+		return NMSManipulator.setObjectValue(enchantment, "net.minecraft.world.item.enchantment.Enchantment.definition", definition);
 	}
 }

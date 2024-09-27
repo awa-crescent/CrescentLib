@@ -146,7 +146,6 @@ public class BossBarEffect implements Listener {
 	 * @return
 	 */
 	public final BossBarEffect detachDisplayEntity() {
-		attached_display_entity = null;
 		if (run_update_display != null) {
 			run_update_display.cancel();
 			run_update_display = null;
@@ -154,6 +153,7 @@ public class BossBarEffect implements Listener {
 		removeNearbyPlayers();
 		if (attached_display_entity instanceof Player player)
 			boss_bar.removePlayer(player);
+		attached_display_entity = null;
 		return this;
 	}
 

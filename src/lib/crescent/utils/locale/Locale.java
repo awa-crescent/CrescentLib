@@ -137,13 +137,14 @@ public class Locale {
 	}
 
 	/**
-	 * 根据locale得到本地化文本
+	 * 根据locale得到本地化文本，不存在则返回key值
 	 * 
 	 * @param key 文本对应的key值
 	 * @return 本地化文本
 	 */
 	public String getLocalizedValue(String key) {
-		return yml_entries.getString(key);
+		String value = yml_entries.getString(key);
+		return value == null ? key : value;
 	}
 
 	/**

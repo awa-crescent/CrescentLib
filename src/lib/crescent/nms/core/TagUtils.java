@@ -9,9 +9,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
-import lib.crescent.Reflect;
-import lib.crescent.nms.MappingsEntry;
-import lib.crescent.tag.NamespacedKeyUtils;
+import lib.crescent.nms.NMSManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
@@ -24,7 +22,7 @@ import net.minecraft.world.item.Item;
 public class TagUtils {
 
 	public static <T> TagKey<T> getTagKey(ResourceKey<? extends IRegistry<T>> resource_key, String resource_location) {
-		return TagKey.create(resource_key, NamespacedKeyUtils.getResourceLocationFromNamespacedID(resource_location));
+		return TagKey.create(resource_key, ResourceLocation.getResourceLocationFromNamespacedID(resource_location));
 	}
 
 	public static <T> String getTagKeyNamespacedID(TagKey<T> tag_key) {
@@ -47,7 +45,7 @@ public class TagUtils {
 		HolderSet.Named<T> tag_members = ((IRegistry<T>) registry).getOrCreateTag(tag_key);// 判断注册表中是否存在该tag的成员列表，存在则获取，不存在则新建
 		List<Holder<T>> contents = new ArrayList<>();// 新的成员列表，将替换目标注册表下对应TagKey的HolderSet$Named.contents
 		for (String memb : namespaced_members) {
-			MinecraftKey nms_key = NamespacedKeyUtils.getResourceLocationFromNamespacedID(memb);// 获取每个成员的ResourceLocation(Spigot API反混淆为MinecraftKey)
+			MinecraftKey nms_key = ResourceLocation.getResourceLocationFromNamespacedID(memb);// 获取每个成员的ResourceLocation(Spigot API反混淆为MinecraftKey)
 			Holder.c<T> memb_holder;// memb_holder类型为Holder$Reference，表示要添加的目标成员引用
 			try {
 				memb_holder = registry.getHolder(nms_key).orElseThrow();// 获取要添加的目标成员引用，目标不存在则抛出异常
@@ -56,12 +54,12 @@ public class TagUtils {
 				throw ex;
 			}
 			// 获取该目标成员引用的其他tag，并添加新tag后一起写入Holder$Reference.tags
-			Set<TagKey<T>> memb_tags = new HashSet<TagKey<T>>((Set<TagKey<T>>) Reflect.getValue(memb_holder, MappingsEntry.getObfuscatedName("net.minecraft.core.Holder$Reference.tags")));// 复制holder所有的tags，更改后将替换原有的Holder$Reference.tags
+			Set<TagKey<T>> memb_tags = new HashSet<TagKey<T>>((Set<TagKey<T>>) NMSManipulator.access(memb_holder, "net.minecraft.core.Holder$Reference.tags"));// 复制holder所有的tags，更改后将替换原有的Holder$Reference.tags
 			memb_tags.add((TagKey<T>) tag_key);// 添加新的自定义的tag_key，如果已经存在则忽略
-			Reflect.setValue(memb_holder, MappingsEntry.getObfuscatedName("net.minecraft.core.Holder$Reference.tags"), memb_tags);
+			NMSManipulator.setObjectValue(memb_holder, "net.minecraft.core.Holder$Reference.tags", memb_tags);
 			contents.add(memb_holder);
 		}
-		Reflect.setValue(tag_members, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);// Tag具有名称TagKey，因此一定是HolderSet.Named
+		NMSManipulator.setObjectValue(tag_members, "net.minecraft.core.HolderSet$Named.contents", contents);// Tag具有名称TagKey，因此一定是HolderSet.Named
 		return tag_members;
 	}
 
@@ -119,7 +117,7 @@ public class TagUtils {
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));
 		contents.add(holder_reference);
-		return Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
+		return NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Named.contents", contents);
 	}
 
 	/**
@@ -178,7 +176,7 @@ public class TagUtils {
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));
 		contents.remove(holder_reference);
-		return Reflect.setValue(holder_set, MappingsEntry.getObfuscatedName("net.minecraft.core.HolderSet$Named.contents"), contents);
+		return NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Named.contents", contents);
 	}
 
 	public static <T> boolean removeTag(ResourceKey<? extends IRegistry<T>> resource_key, String namespaced_tag, Holder.c<T> holder_reference) {
