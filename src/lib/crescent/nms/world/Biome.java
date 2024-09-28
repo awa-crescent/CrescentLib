@@ -8,21 +8,22 @@ import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.biome.BiomeBase;
 import net.minecraft.world.level.biome.BiomeBase.ClimateSettings;
 import net.minecraft.world.level.biome.BiomeBase.TemperatureModifier;
+import net.minecraft.world.level.biome.BiomeFog;
 
 public class Biome {
 	private static final String climate_settings_class_prefix = "net.minecraft.world.level.biome.Biome$ClimateSettings.";
 	private static final String biome_class_prefix = "net.minecraft.world.level.biome.Biome.";
 
 	private static final void setClimateSettingsFloatValue(ClimateSettings settings, String name, float value) {
-		NMSManipulator.setFloatValue(settings, climate_settings_class_prefix + name, value);
+		NMSManipulator.setFloat(settings, climate_settings_class_prefix + name, value);
 	}
 
 	private static final void setClimateSettingsBooleanValue(ClimateSettings settings, String name, boolean value) {
-		NMSManipulator.setBooleanValue(settings, climate_settings_class_prefix + name, value);
+		NMSManipulator.setBoolean(settings, climate_settings_class_prefix + name, value);
 	}
 
 	private static final void setClimateSettingsObjectValue(ClimateSettings settings, String name, Object value) {
-		NMSManipulator.setObjectValue(settings, climate_settings_class_prefix + name, value);
+		NMSManipulator.setObject(settings, climate_settings_class_prefix + name, value);
 	}
 
 	/**
@@ -135,8 +136,12 @@ public class Biome {
 	 * @param biome
 	 * @return
 	 */
-	public static final BiomeSpecialEffects getBiomeSpecialEffects(BiomeBase biome) {
-		return (BiomeSpecialEffects) NMSManipulator.getObjectValue(biome, biome_class_prefix + "specialEffects");
+	public static final BiomeFog getBiomeSpecialEffects(BiomeBase biome) {
+		return (BiomeFog) NMSManipulator.getObject(biome, biome_class_prefix + "specialEffects");
+	}
+
+	public static final BiomeFog getBiomeSpecialEffects(String biome) {
+		return getBiomeSpecialEffects(getBiome(biome));
 	}
 
 	/**

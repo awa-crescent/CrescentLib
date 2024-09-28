@@ -18,7 +18,7 @@ public abstract class ClientConnection {
 	private static final List<NetworkManager> client_connections;// List<Connection>
 
 	static {
-		server_connection = (ServerConnection) NMSManipulator.getObjectValue(ServerEntry.server, "net.minecraft.server.MinecraftServer.connection");
+		server_connection = (ServerConnection) NMSManipulator.getObject(ServerEntry.server, "net.minecraft.server.MinecraftServer.connection");
 		client_connections = server_connection.getConnections();
 	}
 

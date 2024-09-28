@@ -69,7 +69,7 @@ public class RegistryManager {
 	 * @return 操作是否成功
 	 */
 	public static <T> boolean unfreezeRegistry(IRegistry<T> registry) {
-		return NMSManipulator.setBooleanValue(registry, "net.minecraft.core.MappedRegistry.frozen", false) && NMSManipulator.setObjectValue(registry, "net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders", new IdentityHashMap<>());
+		return NMSManipulator.setBoolean(registry, "net.minecraft.core.MappedRegistry.frozen", false) && NMSManipulator.setObject(registry, "net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders", new IdentityHashMap<>());
 	}
 
 	/**

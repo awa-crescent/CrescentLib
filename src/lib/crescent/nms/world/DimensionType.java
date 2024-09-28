@@ -62,23 +62,23 @@ public class DimensionType {
 	private static final String class_prefix = "net.minecraft.world.level.dimension.DimensionType.";
 
 	private static void setDimensionManagerBooleanValue(DimensionManager dimension, String name, boolean value) {
-		NMSManipulator.setBooleanValue(dimension, class_prefix + name, value);
+		NMSManipulator.setBoolean(dimension, class_prefix + name, value);
 	}
 
 	private static void setDimensionManagerIntValue(DimensionManager dimension, String name, int value) {
-		NMSManipulator.setIntValue(dimension, class_prefix + name, value);
+		NMSManipulator.setInt(dimension, class_prefix + name, value);
 	}
 
 	private static void setDimensionManagerFloatValue(DimensionManager dimension, String name, float value) {
-		NMSManipulator.setFloatValue(dimension, class_prefix + name, value);
+		NMSManipulator.setFloat(dimension, class_prefix + name, value);
 	}
 
 	private static void setDimensionManagerDoubleValue(DimensionManager dimension, String name, double value) {
-		NMSManipulator.setDoubleValue(dimension, class_prefix + name, value);
+		NMSManipulator.setDouble(dimension, class_prefix + name, value);
 	}
 
 	private static void setDimensionManagerObjectValue(DimensionManager dimension, String name, Object value) {
-		NMSManipulator.setObjectValue(dimension, class_prefix + name, value);
+		NMSManipulator.setObject(dimension, class_prefix + name, value);
 	}
 
 	/**
@@ -298,7 +298,7 @@ public class DimensionType {
 	}
 
 	public static void setMoonBrightnessPerPhase(DimensionManager dimension, float[] MOON_BRIGHTNESS_PER_PHASE) {
-		NMSManipulator.setObjectValue(dimension, "net.minecraft.world.level.dimension.DimensionType.MOON_BRIGHTNESS_PER_PHASE", MOON_BRIGHTNESS_PER_PHASE);
+		NMSManipulator.setObject(dimension, "net.minecraft.world.level.dimension.DimensionType.MOON_BRIGHTNESS_PER_PHASE", MOON_BRIGHTNESS_PER_PHASE);
 	}
 
 	public static void setMoonBrightnessPerPhase(Type dimension, float[] MOON_BRIGHTNESS_PER_PHASE) {

@@ -60,16 +60,16 @@ public abstract class VMEntry {
 		boolean compressed_oops = false;
 		try {
 			// 获取Management工厂类
-			Manipulator.setObjectValue(VMEntry.class, "ManagementFactoryClass", Class.forName("java.lang.management.ManagementFactory"));
+			Manipulator.setObject(VMEntry.class, "ManagementFactoryClass", Class.forName("java.lang.management.ManagementFactory"));
 			// 获取HotSpotDiagnosticMXBeanClass
 			Class<HotSpotDiagnosticMXBean> HotSpotDiagnosticMXBeanClass = (Class<com.sun.management.HotSpotDiagnosticMXBean>) Class.forName("com.sun.management.HotSpotDiagnosticMXBean");
-			Manipulator.setObjectValue(VMEntry.class, "HotSpotDiagnosticMXBean", invokeManagementFactory("getPlatformMXBean", HotSpotDiagnosticMXBeanClass));
+			Manipulator.setObject(VMEntry.class, "HotSpotDiagnosticMXBean", invokeManagementFactory("getPlatformMXBean", HotSpotDiagnosticMXBeanClass));
 			if (HotSpotDiagnosticMXBean != null) {
 				hotspot = true;// 获取HotSpotDiagnosticMXBean的getVMOption()方法
-				Manipulator.setObjectValue(VMEntry.class, "HotSpotDiagnosticMXBean_getVMOption", Manipulator.removeAccessCheck(Reflect.getMethod(HotSpotDiagnosticMXBeanClass, "getVMOption", String.class)));
+				Manipulator.setObject(VMEntry.class, "HotSpotDiagnosticMXBean_getVMOption", Manipulator.removeAccessCheck(Reflect.getMethod(HotSpotDiagnosticMXBeanClass, "getVMOption", String.class)));
 				if (NATIVE_JVM_BIT_VERSION == 64) {// 64位JVM需要检查是否启用了指针压缩
 					Object oops_option = HotSpotDiagnosticMXBean_getVMOption.invoke(HotSpotDiagnosticMXBean, "UseCompressedOops");
-					Manipulator.setObjectValue(VMEntry.class, "VMOption_getValue", Reflect.getMethod(oops_option, "getValue"));
+					Manipulator.setObject(VMEntry.class, "VMOption_getValue", Reflect.getMethod(oops_option, "getValue"));
 					compressed_oops = Boolean.parseBoolean(VMOption_getValue.invoke(oops_option).toString());
 				} else
 					compressed_oops = false;
@@ -80,16 +80,16 @@ public abstract class VMEntry {
 		NATIVE_JVM_HOTSPOT = hotspot;
 		NATIVE_JVM_COMPRESSED_OOPS = compressed_oops;
 		try {
-			Manipulator.setObjectValue(VMEntry.class, "RuntimeMXBean", invokeManagementFactory("getRuntimeMXBean"));
-			Manipulator.setObjectValue(VMEntry.class, "VMManagement", Manipulator.access(RuntimeMXBean, "jvm"));// 获取JVM管理类
-			Manipulator.setObjectValue(VMEntry.class, "VMManagementClass", VMManagement.getClass());// 在HotSpot虚拟机中是sun.management.VMManagementImpl
+			Manipulator.setObject(VMEntry.class, "RuntimeMXBean", invokeManagementFactory("getRuntimeMXBean"));
+			Manipulator.setObject(VMEntry.class, "VMManagement", Manipulator.access(RuntimeMXBean, "jvm"));// 获取JVM管理类
+			Manipulator.setObject(VMEntry.class, "VMManagementClass", VMManagement.getClass());// 在HotSpot虚拟机中是sun.management.VMManagementImpl
 			VMManagementImpl_getProcessId = Handle.findSpecialMethodHandle(VMManagementClass, VMManagementClass, "getProcessId", int.class);// 获取进程ID的native方法
 			// 获取系统属性引用
-			Manipulator.setObjectValue(VMEntry.class, "Properties", Manipulator.access(System.class, "props"));
+			Manipulator.setObject(VMEntry.class, "Properties", Manipulator.access(System.class, "props"));
 			// 获取所有系统ClassLoaders
-			Manipulator.setObjectValue(VMEntry.class, "ClassLoaders", Class.forName("jdk.internal.loader.ClassLoaders"));
+			Manipulator.setObject(VMEntry.class, "ClassLoaders", Class.forName("jdk.internal.loader.ClassLoaders"));
 			// 虚拟机参数Flag类及其成员方法
-			Manipulator.setObjectValue(VMEntry.class, "Flag", Class.forName("com.sun.management.internal.Flag"));
+			Manipulator.setObject(VMEntry.class, "Flag", Class.forName("com.sun.management.internal.Flag"));
 			Flag_getFlag = Handle.findStaticMethodHandle(Flag, "getFlag", Flag, String.class);
 			Flag_setLongValue = Handle.findStaticMethodHandle(Flag, "setLongValue", void.class, String.class, long.class);
 			Flag_setDoubleValue = Handle.findStaticMethodHandle(Flag, "setDoubleValue", void.class, String.class, double.class);
@@ -98,8 +98,8 @@ public abstract class VMEntry {
 			Flag_getValue = Handle.findSpecialMethodHandle(Flag, Flag, "getValue", Object.class);
 			// 获取虚拟机实体VM
 			if (has_sa_jdi_jar) {
-				Manipulator.setObjectValue(VMEntry.class, "VMClass", Class.forName("sun.jvm.hotspot.runtime.VM"));
-				Manipulator.setObjectValue(VMEntry.class, "VM", Manipulator.invoke(VMClass, "getVM", null));
+				Manipulator.setObject(VMEntry.class, "VMClass", Class.forName("sun.jvm.hotspot.runtime.VM"));
+				Manipulator.setObject(VMEntry.class, "VM", Manipulator.invoke(VMClass, "getVM", null));
 			}
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();

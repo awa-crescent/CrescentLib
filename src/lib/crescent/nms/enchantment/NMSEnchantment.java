@@ -308,7 +308,7 @@ public class NMSEnchantment {
 	}
 
 	public static boolean set_Enchantment_exclusiveSet(Enchantment enchantment, HolderSet<Enchantment> exclusive_set) {
-		return NMSManipulator.setObjectValue(enchantment, "net.minecraft.world.item.enchantment.Enchantment.exclusiveSet", exclusive_set);
+		return NMSManipulator.setObject(enchantment, "net.minecraft.world.item.enchantment.Enchantment.exclusiveSet", exclusive_set);
 	}
 
 	public static Enchantment.c get_Enchantment_definition(Enchantment enchantment) {
@@ -316,6 +316,6 @@ public class NMSEnchantment {
 	}
 
 	public static boolean set_Enchantment_definition(Enchantment enchantment, Enchantment.c definition) {
-		return NMSManipulator.setObjectValue(enchantment, "net.minecraft.world.item.enchantment.Enchantment.definition", definition);
+		return NMSManipulator.setObject(enchantment, "net.minecraft.world.item.enchantment.Enchantment.definition", definition);
 	}
 }

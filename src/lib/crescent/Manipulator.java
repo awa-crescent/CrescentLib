@@ -335,7 +335,7 @@ public abstract class Manipulator {
 	 * @param value 要修改的值
 	 * @return
 	 */
-	public static boolean setObjectValue(Object obj, Field field, Object value) {
+	public static boolean setObject(Object obj, Field field, Object value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -345,11 +345,11 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setObjectValue(Object obj, String field, Object value) {
-		return setObjectValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setObject(Object obj, String field, Object value) {
+		return setObject(obj, Reflect.getField(obj, field), value);
 	}
 
-	public static Object getObjectValue(Object obj, Field field) {
+	public static Object getObject(Object obj, Field field) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -358,11 +358,11 @@ public abstract class Manipulator {
 			return unsafe.getObject(obj, objectFieldOffset(field));
 	}
 
-	public static Object getObjectValue(Object obj, String field) {
-		return getObjectValue(obj, Reflect.getField(obj, field));
+	public static Object getObject(Object obj, String field) {
+		return getObject(obj, Reflect.getField(obj, field));
 	}
 
-	public static boolean setLongValue(Object obj, Field field, long value) {
+	public static boolean setLong(Object obj, Field field, long value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -372,11 +372,11 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setLongValue(Object obj, String field, long value) {
-		return setLongValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setLong(Object obj, String field, long value) {
+		return setLong(obj, Reflect.getField(obj, field), value);
 	}
 
-	public static boolean setBooleanValue(Object obj, Field field, boolean value) {
+	public static boolean setBoolean(Object obj, Field field, boolean value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -386,11 +386,11 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setBooleanValue(Object obj, String field, boolean value) {
-		return setBooleanValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setBoolean(Object obj, String field, boolean value) {
+		return setBoolean(obj, Reflect.getField(obj, field), value);
 	}
 
-	public static boolean setIntValue(Object obj, Field field, int value) {
+	public static boolean setInt(Object obj, Field field, int value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -400,11 +400,11 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setIntValue(Object obj, String field, int value) {
-		return setIntValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setInt(Object obj, String field, int value) {
+		return setInt(obj, Reflect.getField(obj, field), value);
 	}
 
-	public static boolean setDoubleValue(Object obj, Field field, double value) {
+	public static boolean setDouble(Object obj, Field field, double value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -414,11 +414,11 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setDoubleValue(Object obj, String field, double value) {
-		return setDoubleValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setDouble(Object obj, String field, double value) {
+		return setDouble(obj, Reflect.getField(obj, field), value);
 	}
 
-	public static boolean setFloatValue(Object obj, Field field, float value) {
+	public static boolean setFloat(Object obj, Field field, float value) {
 		if (field == null)
 			return false;
 		if (Modifier.isStatic(field.getModifiers()))
@@ -428,7 +428,7 @@ public abstract class Manipulator {
 		return true;
 	}
 
-	public static boolean setFloatValue(Object obj, String field, float value) {
-		return setFloatValue(obj, Reflect.getField(obj, field), value);
+	public static boolean setFloat(Object obj, String field, float value) {
+		return setFloat(obj, Reflect.getField(obj, field), value);
 	}
 }

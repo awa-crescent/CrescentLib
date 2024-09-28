@@ -31,9 +31,9 @@ public class HolderSetUtils {
 		boolean modify_result = false;
 		// HolderSet分两种，Named和Direct。两者均是ListBacked的子类，而ListBacked是唯一实现了HolderSet<T>接口的类。Named为有TagKey命名的冲突集合，Direct是没有TagKey的冲突集合。原版附魔冲突都是Named，而本库则不给冲突集合命名TagKey，因此是Direct
 		if (holder_set instanceof HolderSet.Named)
-			modify_result = NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Named.contents", contents);
+			modify_result = NMSManipulator.setObject(holder_set, "net.minecraft.core.HolderSet$Named.contents", contents);
 		else if (holder_set instanceof HolderSet.a) // HolderSet.Direct
-			modify_result = NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Direct.contents", contents) && NMSManipulator.setObjectValue(holder_set, "net.minecraft.core.HolderSet$Direct.contentsSet", null);
+			modify_result = NMSManipulator.setObject(holder_set, "net.minecraft.core.HolderSet$Direct.contents", contents) && NMSManipulator.setObject(holder_set, "net.minecraft.core.HolderSet$Direct.contentsSet", null);
 		return modify_result;
 	}
 

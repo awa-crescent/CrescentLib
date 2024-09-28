@@ -17,7 +17,7 @@ public class TerrainGenerator {
 	 * net.minecraft.world.level.chunk.ChunkGenerator() { }, generator); }
 	 */
 	public static final void setChunkGenerator(WorldDimension stem, net.minecraft.world.level.chunk.ChunkGenerator generator) {
-		NMSManipulator.setObjectValue(stem, "net.minecraft.world.level.dimension.LevelStem.generator", generator);
+		NMSManipulator.setObject(stem, "net.minecraft.world.level.dimension.LevelStem.generator", generator);
 	}
 
 	public static final void setChunkGenerator(LevelStem.Type dim_type, net.minecraft.world.level.chunk.ChunkGenerator generator) {
@@ -27,7 +27,7 @@ public class TerrainGenerator {
 	@SuppressWarnings("resource")
 	public static final void setChunkGenerator(WorldServer world, net.minecraft.world.level.chunk.ChunkGenerator generator) {
 		PlayerChunkMap chunk_map = world.getChunkSource().chunkMap;
-		NMSManipulator.setObjectValue(NMSManipulator.access(chunk_map, "net.minecraft.server.level.ChunkMap.worldGenContext"), "net.minecraft.world.level.chunk.status.WorldGenContext.generator", generator);
+		NMSManipulator.setObject(NMSManipulator.access(chunk_map, "net.minecraft.server.level.ChunkMap.worldGenContext"), "net.minecraft.world.level.chunk.status.WorldGenContext.generator", generator);
 	}
 
 	public static final void setChunkGenerator(World world, net.minecraft.world.level.chunk.ChunkGenerator generator) {

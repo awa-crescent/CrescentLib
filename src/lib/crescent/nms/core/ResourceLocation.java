@@ -95,15 +95,15 @@ public class ResourceLocation {
 	public static MinecraftKey getResourceLocationFromNamespacedID(String namespaced_id) {
 		String[] namespace_id = parseNamespacedID(namespaced_id);
 		MinecraftKey resource_location = Manipulator.allocateInstance(MinecraftKey.class);
-		Manipulator.setObjectValue(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.namespace"), namespace_id[0]);
-		Manipulator.setObjectValue(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.path"), namespace_id[1]);
+		Manipulator.setObject(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.namespace"), namespace_id[0]);
+		Manipulator.setObject(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.path"), namespace_id[1]);
 		return resource_location;
 	}
 
 	public MinecraftKey castToNMS() {
 		MinecraftKey resource_location = Manipulator.allocateInstance(MinecraftKey.class);
-		Manipulator.setObjectValue(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.namespace"), namespace);
-		Manipulator.setObjectValue(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.path"), location);
+		Manipulator.setObject(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.namespace"), namespace);
+		Manipulator.setObject(resource_location, MappingsEntry.getObfuscatedName("net.minecraft.resources.ResourceLocation.path"), location);
 		return resource_location;
 	}
 }

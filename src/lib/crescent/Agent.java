@@ -19,7 +19,7 @@ public class Agent {
 			ex.printStackTrace();
 		}
 		HotSpotVirtualMachineClass = cls;
-		Manipulator.setBooleanValue(HotSpotVirtualMachineClass, "ALLOW_ATTACH_SELF", true);// 设置instrument可以从程序attach，不需要在启动JVM时传入参数jdk.attach.allowAttachSelf=true
+		Manipulator.setBoolean(HotSpotVirtualMachineClass, "ALLOW_ATTACH_SELF", true);// 设置instrument可以从程序attach，不需要在启动JVM时传入参数jdk.attach.allowAttachSelf=true
 	}
 
 	/**
