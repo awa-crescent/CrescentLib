@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.core.RegistryManager;
 import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.packet.Packets;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.biome.BiomeBase;
 import net.minecraft.world.level.biome.BiomeBase.ClimateSettings;
@@ -16,14 +17,17 @@ public class Biome {
 
 	private static final void setClimateSettingsFloatValue(ClimateSettings settings, String name, float value) {
 		NMSManipulator.setFloat(settings, climate_settings_class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static final void setClimateSettingsBooleanValue(ClimateSettings settings, String name, boolean value) {
 		NMSManipulator.setBoolean(settings, climate_settings_class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static final void setClimateSettingsObjectValue(ClimateSettings settings, String name, Object value) {
 		NMSManipulator.setObject(settings, climate_settings_class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	/**
@@ -113,7 +117,7 @@ public class Biome {
 	}
 
 	/**
-	 * 设置群系downfall值。该值大于0.85时火焰将熄灭
+	 * 设置群系downfall值。该值大于0.85时火焰将熄灭，同时该值与温度也用于在未指定BiomeSpecialEffects草、树颜色时控制草、树叶颜色
 	 * 
 	 * @param biome
 	 * @param downfall 取值0.0-1.0
@@ -151,12 +155,12 @@ public class Biome {
 	 * @return
 	 */
 	public static final BiomeBase getBiome(MinecraftKey biome) {
-		return RegistryManager.biome.get(biome);
+		return RegistryManager.getRegistryValue(RegistryManager.biome, biome);
 
 	}
 
 	public static final BiomeBase getBiome(ResourceLocation biome) {
-		return RegistryManager.biome.get(biome.castToNMS());
+		return RegistryManager.getRegistryValue(RegistryManager.biome, biome.castToNMS());
 	}
 
 	/**

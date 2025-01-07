@@ -8,10 +8,10 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R1.enchantments.CraftEnchantment;
 import org.bukkit.inventory.EquipmentSlot;
 
 import lib.crescent.enchantment.EnchantmentEntry;
+import lib.crescent.nms.CraftBukkitEntry;
 import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.core.HolderSetUtils;
@@ -89,7 +89,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespace, String enchantment_id) {
-		return RegistryManager.enchantment.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace, enchantment_id)).orElse(null);
+		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocation.getResourceLocationFromNamespacedID(namespace, enchantment_id));
 	}
 
 	/**
@@ -99,8 +99,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespaced_enchantment_id) {
-		String[] namespace_id = ResourceLocation.parseNamespacedID(namespaced_enchantment_id);
-		return RegistryManager.enchantment.getHolder(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespace_id[0], namespace_id[1])).orElse(null);
+		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocation.getResourceLocationFromNamespacedID(namespaced_enchantment_id));
 	}
 
 	/**
@@ -172,7 +171,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔对象，即Enchantment对象
 	 */
 	public static Enchantment getEnchantment(String namespaced_enchantment_id) {
-		return RegistryManager.enchantment.get(ResourceLocation.getResourceKey(Registries.ENCHANTMENT, namespaced_enchantment_id));
+		return RegistryManager.getRegistryValue(RegistryManager.enchantment, Registries.ENCHANTMENT, namespaced_enchantment_id);
 	}
 
 	public static HolderSet<Enchantment> getExclusiveSet(String namespaced_enchantment_id) {
@@ -282,13 +281,13 @@ public class NMSEnchantment {
 	 * @return NMS的Enchantment
 	 */
 	public static Enchantment cast(org.bukkit.enchantments.Enchantment spigot_enchantment) {
-		return CraftEnchantment.bukkitToMinecraft(spigot_enchantment);
+		return (Enchantment) CraftBukkitEntry.bukkitToMinecraft(spigot_enchantment);
 	}
 
 	public static Set<Enchantment> cast(Set<org.bukkit.enchantments.Enchantment> spigot_enchantments) {
 		Set<Enchantment> set = new HashSet<Enchantment>();
 		for (org.bukkit.enchantments.Enchantment e : spigot_enchantments)
-			set.add(CraftEnchantment.bukkitToMinecraft(e));
+			set.add(cast(e));
 		return set;
 	}
 

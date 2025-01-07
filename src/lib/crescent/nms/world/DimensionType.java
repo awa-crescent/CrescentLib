@@ -8,6 +8,8 @@ import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.core.RegistryManager;
 import lib.crescent.nms.core.ResourceLocation;
 import lib.crescent.nms.world.LevelStem.Type;
+import lib.crescent.packet.Packets;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionManager;
@@ -20,10 +22,14 @@ public class DimensionType {
 	public static final DimensionManager TYPE_OVERWORLD_CAVES;
 
 	static {
-		TYPE_OVERWORLD = RegistryManager.dimension_type.get(BuiltinDimensionTypes.OVERWORLD);
-		TYPE_NETHER = RegistryManager.dimension_type.get(BuiltinDimensionTypes.NETHER);
-		TYPE_END = RegistryManager.dimension_type.get(BuiltinDimensionTypes.END);
-		TYPE_OVERWORLD_CAVES = RegistryManager.dimension_type.get(BuiltinDimensionTypes.OVERWORLD_CAVES);
+		TYPE_OVERWORLD = RegistryManager.getRegistryValue(RegistryManager.dimension_type, BuiltinDimensionTypes.OVERWORLD);
+		TYPE_NETHER = RegistryManager.getRegistryValue(RegistryManager.dimension_type, BuiltinDimensionTypes.NETHER);
+		TYPE_END = RegistryManager.getRegistryValue(RegistryManager.dimension_type, BuiltinDimensionTypes.END);
+		TYPE_OVERWORLD_CAVES = RegistryManager.getRegistryValue(RegistryManager.dimension_type, BuiltinDimensionTypes.OVERWORLD_CAVES);
+	}
+
+	public static Holder.c<DimensionManager> getDimensionTypeHolder(String type) {
+		return RegistryManager.getRegistryHolder(RegistryManager.dimension_type, ResourceLocation.getResourceLocationFromNamespacedID(type));
 	}
 
 	public static DimensionManager getDimensionType(Type type) {
@@ -58,27 +64,44 @@ public class DimensionType {
 		return getDimensionType(world.getEnvironment());
 	}
 
+	public static Holder<DimensionManager> getDimensionTypeHolder(Type type) {
+		return LevelStem.getLevelStem(type).type();
+	}
+
+	public static Holder<DimensionManager> getDimensionTypeHolder(Environment type) {
+		return LevelStem.getLevelStem(type).type();
+	}
+
+	public static Holder<DimensionManager> getDimensionTypeHolder(org.bukkit.World world) {
+		return LevelStem.getLevelStem(world).type();
+	}
+
 	// 修改变量值的内部方法
 	private static final String class_prefix = "net.minecraft.world.level.dimension.DimensionType.";
 
 	private static void setDimensionManagerBooleanValue(DimensionManager dimension, String name, boolean value) {
 		NMSManipulator.setBoolean(dimension, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static void setDimensionManagerIntValue(DimensionManager dimension, String name, int value) {
 		NMSManipulator.setInt(dimension, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static void setDimensionManagerFloatValue(DimensionManager dimension, String name, float value) {
 		NMSManipulator.setFloat(dimension, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static void setDimensionManagerDoubleValue(DimensionManager dimension, String name, double value) {
 		NMSManipulator.setDouble(dimension, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static void setDimensionManagerObjectValue(DimensionManager dimension, String name, Object value) {
 		NMSManipulator.setObject(dimension, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	/**
@@ -166,7 +189,7 @@ public class DimensionType {
 	}
 
 	/**
-	 * 设置建造的最低y轴高度
+	 * 设置建造的最低y轴高度，必须在-2032~2031之间
 	 * 
 	 * @param dimension
 	 * @param minY
@@ -180,7 +203,7 @@ public class DimensionType {
 	}
 
 	/**
-	 * 设置世界高度，也是生物生成、玩家建造、地形生成的最大高度，从minY开始计算的绝对高度
+	 * 设置世界高度，也是生物生成、玩家建造、地形生成的最大高度，从minY开始计算的绝对高度。minY+height必须在2032以内
 	 * 
 	 * @param dimension
 	 * @param height
@@ -297,6 +320,10 @@ public class DimensionType {
 		}
 	}
 
+	public static void setEffectsLocation(String dimension, String effectsLocation) {
+		setEffectsLocation(getDimensionType(dimension), effectsLocation);
+	}
+
 	public static void setMoonBrightnessPerPhase(DimensionManager dimension, float[] MOON_BRIGHTNESS_PER_PHASE) {
 		NMSManipulator.setObject(dimension, "net.minecraft.world.level.dimension.DimensionType.MOON_BRIGHTNESS_PER_PHASE", MOON_BRIGHTNESS_PER_PHASE);
 	}
@@ -312,7 +339,7 @@ public class DimensionType {
 	 * @return
 	 */
 	public static final DimensionManager getDimensionType(MinecraftKey dim) {
-		return RegistryManager.dimension_type.get(dim);
+		return RegistryManager.getRegistryValue(RegistryManager.dimension_type, dim);
 	}
 
 	public static final DimensionManager getDimensionType(ResourceLocation dim) {

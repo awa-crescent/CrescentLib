@@ -21,9 +21,9 @@ public abstract class MappingsEntry {
 		mappings_entries = new YamlConfiguration();
 		InputStream mappings_stream;
 		try {
-			mappings_stream = MappingsEntry.class.getClassLoader().getResource("lib/crescent/nms/Mappings.yml").openStream();
+			mappings_stream = MappingsEntry.class.getClassLoader().getResource("lib/crescent/nms/mappings/" + Version.this_version + ".yml").openStream();
 			if (mappings_stream == null) {
-				Bukkit.getLogger().log(Level.SEVERE, "Cannot find embeded mappings file");
+				Bukkit.getLogger().log(Level.SEVERE, "Cannot find embeded mappings file for NMS version " + Version.this_version);
 			}
 			InputStreamReader mappings_stream_reader = new InputStreamReader(mappings_stream);
 			mappings_entries.load(mappings_stream_reader);

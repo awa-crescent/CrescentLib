@@ -18,9 +18,9 @@ public class LevelStem {
 	public static final WorldDimension DIM_END;
 
 	static {
-		DIM_OVERWORLD = RegistryManager.level_stem.get(WorldDimension.OVERWORLD);
-		DIM_NETHER = RegistryManager.level_stem.get(WorldDimension.NETHER);
-		DIM_END = RegistryManager.level_stem.get(WorldDimension.END);
+		DIM_OVERWORLD = RegistryManager.getRegistryValue(RegistryManager.level_stem, WorldDimension.OVERWORLD);
+		DIM_NETHER = RegistryManager.getRegistryValue(RegistryManager.level_stem, WorldDimension.NETHER);
+		DIM_END = RegistryManager.getRegistryValue(RegistryManager.level_stem, WorldDimension.END);
 	}
 
 	public static WorldDimension getLevelStem(Type type) {
@@ -61,7 +61,7 @@ public class LevelStem {
 	 * @return
 	 */
 	public static final WorldDimension getLevelStem(MinecraftKey dim) {
-		return RegistryManager.level_stem.get(dim);
+		return RegistryManager.getRegistryValue(RegistryManager.level_stem, dim);
 	}
 
 	public static final WorldDimension getLevelStem(ResourceLocation dim) {

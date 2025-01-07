@@ -29,7 +29,9 @@ public class LevelChunk {
 		Long2ObjectLinkedOpenHashMap<PlayerChunk> loaded_chunk_map = (Long2ObjectLinkedOpenHashMap<PlayerChunk>) Reflect.getValue(chunkMap, updatingChunkMap);
 		ArrayList<Chunk> updating_chunks = new ArrayList<>();
 		loaded_chunk_map.forEach((Long l, PlayerChunk player_chunk) -> {
-			updating_chunks.add(player_chunk.getFullChunkNow());
+			Chunk level_chunk = player_chunk.getTickingChunk();
+			if (level_chunk != null)
+				updating_chunks.add(level_chunk);
 		});
 		Chunk[] result = new Chunk[updating_chunks.size()];
 		return updating_chunks.toArray(result);
@@ -39,8 +41,11 @@ public class LevelChunk {
 	public static final Chunk[] getVisibleChunks(WorldServer world) {
 		ArrayList<Chunk> visible_chunks = new ArrayList<>();
 		Iterable<PlayerChunk> chunks = (Iterable<PlayerChunk>) NMSManipulator.invoke(world.getChunkSource().chunkMap, "net.minecraft.server.level.ChunkMap.getChunks()", null);
-		for (PlayerChunk chunk : chunks)
-			visible_chunks.add(chunk.getFullChunkNow());
+		for (PlayerChunk chunk : chunks) {
+			Chunk level_chunk = chunk.getTickingChunk();
+			if (level_chunk != null)
+				visible_chunks.add(level_chunk);
+		}
 		Chunk[] result = new Chunk[visible_chunks.size()];
 		return visible_chunks.toArray(result);
 	}

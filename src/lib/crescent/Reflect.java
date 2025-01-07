@@ -26,6 +26,18 @@ public abstract class Reflect {
 		return null;
 	}
 
+	public static String getClassNameWithoutPackage(String full_name) {
+		return full_name.substring(full_name.lastIndexOf('.') + 1);
+	}
+
+	public static String getClassNameWithoutPackage(Object obj) {
+		return getClassNameWithoutPackage(obj.getClass().getName());
+	}
+
+	public static String getPackageName(String full_name) {
+		return full_name.substring(0, full_name.lastIndexOf('.'));
+	}
+
 	/**
 	 * 查询类成员，如果该类没有则递归查找父类
 	 */

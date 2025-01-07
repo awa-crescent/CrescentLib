@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import lib.crescent.nms.NMSManipulator;
+import lib.crescent.packet.Packets;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEffect;
@@ -20,10 +21,12 @@ public class BiomeSpecialEffects {
 
 	private static final void setBiomeSpecialEffectsIntValue(BiomeFog biome_effects, String name, int value) {
 		NMSManipulator.setInt(biome_effects, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	private static final void setBiomeSpecialEffectsObjectValue(BiomeFog biome_effects, String name, Object value) {
 		NMSManipulator.setObject(biome_effects, class_prefix + name, value);
+		Packets.updateRegistriesAnsyc();
 	}
 
 	/**
@@ -37,6 +40,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setFogColor(BiomeBase biome, int fogColor) {
+		setFogColor(Biome.getBiomeSpecialEffects(biome), fogColor);
+	}
+
+	public static final void setFogColor(String biome, int fogColor) {
 		setFogColor(Biome.getBiomeSpecialEffects(biome), fogColor);
 	}
 
@@ -54,6 +61,10 @@ public class BiomeSpecialEffects {
 		setWaterColor(Biome.getBiomeSpecialEffects(biome), fogColor);
 	}
 
+	public static final void setWaterColor(String biome, int fogColor) {
+		setWaterColor(Biome.getBiomeSpecialEffects(biome), fogColor);
+	}
+
 	/**
 	 * 设置群系水中雾的颜色，十六进制
 	 * 
@@ -65,6 +76,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setWaterFogColor(BiomeBase biome, int fogColor) {
+		setWaterFogColor(Biome.getBiomeSpecialEffects(biome), fogColor);
+	}
+
+	public static final void setWaterFogColor(String biome, int fogColor) {
 		setWaterFogColor(Biome.getBiomeSpecialEffects(biome), fogColor);
 	}
 
@@ -82,6 +97,10 @@ public class BiomeSpecialEffects {
 		setSkyColor(Biome.getBiomeSpecialEffects(biome), fogColor);
 	}
 
+	public static final void setSkyColor(String biome, int fogColor) {
+		setSkyColor(Biome.getBiomeSpecialEffects(biome), fogColor);
+	}
+
 	/**
 	 * 设置群系树叶颜色，十六进制
 	 * 
@@ -93,6 +112,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setFoliageColorOverride(BiomeBase biome, int foliageColorOverride) {
+		setFoliageColorOverride(Biome.getBiomeSpecialEffects(biome), foliageColorOverride);
+	}
+
+	public static final void setFoliageColorOverride(String biome, int foliageColorOverride) {
 		setFoliageColorOverride(Biome.getBiomeSpecialEffects(biome), foliageColorOverride);
 	}
 
@@ -110,6 +133,10 @@ public class BiomeSpecialEffects {
 		setGrassColorOverride(Biome.getBiomeSpecialEffects(biome), grassColorOverride);
 	}
 
+	public static final void setGrassColorOverride(String biome, int grassColorOverride) {
+		setGrassColorOverride(Biome.getBiomeSpecialEffects(biome), grassColorOverride);
+	}
+
 	/**
 	 * 设置草的颜色修饰方法
 	 * 
@@ -121,6 +148,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setGrassColorModifier(BiomeBase biome, GrassColor grassColorModifier) {
+		setGrassColorModifier(Biome.getBiomeSpecialEffects(biome), grassColorModifier);
+	}
+
+	public static final void setGrassColorModifier(String biome, GrassColor grassColorModifier) {
 		setGrassColorModifier(Biome.getBiomeSpecialEffects(biome), grassColorModifier);
 	}
 
@@ -138,6 +169,10 @@ public class BiomeSpecialEffects {
 		setAmbientParticle(Biome.getBiomeSpecialEffects(biome), ambientParticleSettings);
 	}
 
+	public static final void setAmbientParticle(String biome, BiomeParticles ambientParticleSettings) {
+		setAmbientParticle(Biome.getBiomeSpecialEffects(biome), ambientParticleSettings);
+	}
+
 	/**
 	 * 设置群系的循环自然音效
 	 * 
@@ -149,6 +184,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setAmbientLoopSound(BiomeBase biome, Holder<SoundEffect> ambientLoopSoundEvent) {
+		setAmbientLoopSound(Biome.getBiomeSpecialEffects(biome), ambientLoopSoundEvent);
+	}
+
+	public static final void setAmbientLoopSound(String biome, Holder<SoundEffect> ambientLoopSoundEvent) {
 		setAmbientLoopSound(Biome.getBiomeSpecialEffects(biome), ambientLoopSoundEvent);
 	}
 
@@ -166,6 +205,10 @@ public class BiomeSpecialEffects {
 		setAmbientMoodSettings(Biome.getBiomeSpecialEffects(biome), ambientMoodSettings);
 	}
 
+	public static final void setAmbientMoodSettings(String biome, CaveSoundSettings ambientMoodSettings) {
+		setAmbientMoodSettings(Biome.getBiomeSpecialEffects(biome), ambientMoodSettings);
+	}
+
 	/**
 	 * 设置群系的额外音效
 	 * 
@@ -180,6 +223,10 @@ public class BiomeSpecialEffects {
 		setAmbientAdditionsSound(Biome.getBiomeSpecialEffects(biome), ambientAdditionsSettings);
 	}
 
+	public static final void setAmbientAdditionsSound(String biome, CaveSound ambientAdditionsSettings) {
+		setAmbientAdditionsSound(Biome.getBiomeSpecialEffects(biome), ambientAdditionsSettings);
+	}
+
 	/**
 	 * 设置群系背景音乐
 	 * 
@@ -191,6 +238,10 @@ public class BiomeSpecialEffects {
 	}
 
 	public static final void setBackgroundMusic(BiomeBase biome, @Nullable Music backgroundMusic) {
+		setBackgroundMusic(Biome.getBiomeSpecialEffects(biome), backgroundMusic);
+	}
+
+	public static final void setBackgroundMusic(String biome, @Nullable Music backgroundMusic) {
 		setBackgroundMusic(Biome.getBiomeSpecialEffects(biome), backgroundMusic);
 	}
 }
