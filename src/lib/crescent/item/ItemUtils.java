@@ -9,13 +9,13 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 
 import lib.crescent.enchantment.EnchantmentManager;
-import lib.crescent.nms.core.TagUtils;
+import lib.crescent.nms.core.TagKeys;
 import lib.crescent.tag.Tag;
 
 public class ItemUtils {
 
 	public static void createItemTag(String namespaced_tag, Set<String> members) {
-		TagUtils.appendItemTagMembers(namespaced_tag, members);
+		TagKeys.appendItemTagMembers(namespaced_tag, members);
 	}
 
 	/**

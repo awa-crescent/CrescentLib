@@ -3,15 +3,21 @@ package lib.crescent.nms.core;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
+import lib.crescent.Manipulator;
+import lib.crescent.Reflect;
 import lib.crescent.nms.NMSManipulator;
+import lib.crescent.nms.Version;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.HolderSet.Named;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.MinecraftKey;
@@ -19,7 +25,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
-public class TagUtils {
+public class TagKeys {
+	private static final String MappedRegistry$TagSet_map = "val$map";
 
 	public static <T> TagKey<T> getTagKey(ResourceKey<? extends IRegistry<T>> resource_key, String resource_location) {
 		return TagKey.create(resource_key, ResourceLocation.getResourceLocationFromNamespacedID(resource_location));
@@ -27,6 +34,100 @@ public class TagUtils {
 
 	public static <T> String getTagKeyNamespacedID(TagKey<T> tag_key) {
 		return tag_key == null ? null : tag_key.location().toString();
+	}
+
+	/**
+	 * 获取MappedRegistry.frozenTags，1_21_R2及以上使用
+	 * 
+	 * @param <T>
+	 * @param registry
+	 * @return
+	 * @since 1_21_R2
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Map<TagKey<T>, HolderSet.Named<T>> getFrozenTags(IRegistry<T> registry) {
+		return (Map<TagKey<T>, HolderSet.Named<T>>) NMSManipulator.access(registry, "net.minecraft.core.MappedRegistry.frozenTags");
+	}
+
+	/**
+	 * 获取MappedRegistry.allTags本体，1_21_R2及以上使用
+	 * 
+	 * @param <T>
+	 * @param registry
+	 * @return
+	 * @since 1_21_R2
+	 */
+	public static <T> Map<TagKey<T>, HolderSet.Named<T>> getAllTagsSetObject(IRegistry<T> registry) {
+		return getTagSetMap(NMSManipulator.access(registry, "net.minecraft.core.MappedRegistry.allTags"));// allTags类型为private interface RegistryMaterials.a<T>
+	}
+
+	/**
+	 * 获取MappedRegistry.allTags的不可修改原对象
+	 * 
+	 * @param <T>
+	 * @param registry
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Map<TagKey<T>, HolderSet.Named<T>> getAllTags(IRegistry<T> registry) {
+		if (Version.this_version.between("1_21_R0", "1_21_R2"))
+			return (Map<TagKey<T>, Named<T>>) NMSManipulator.access(registry, "net.minecraft.core.MappedRegistry.tags");
+		else if (Version.this_version.newerOrEqual("1_21_R2"))
+			return getTagSetMap(NMSManipulator.access(registry, "net.minecraft.core.MappedRegistry.allTags"));
+		else {
+			Bukkit.getLogger().log(Level.WARNING, "Get allTags failed. Dest registry is " + registry);
+			return null;
+		}
+	}
+
+	/**
+	 * 获取TagSet内部的不可修改TagMap。MappedRegistry.allTags对象由MappedRegistry$TagSet.fromMap()创建，该对象是一个匿名内部类，没有成员变量，但捕获了fromMap()传入的map对象作为储存Tag的对象，1_21_R2及以上使用
+	 * 
+	 * @param <T>
+	 * @param tag_set 类型为RegistryMaterials.a<T>，即MappedRegistry$TagSet<T>
+	 * @return
+	 * @since 1_21_R2
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Map<TagKey<T>, HolderSet.Named<T>> getTagSetMap(Object tag_set) {
+		if (Reflect.getClassForName("net.minecraft.core.MappedRegistry$TagSet").isInstance(tag_set))
+			return (Map<TagKey<T>, HolderSet.Named<T>>) Manipulator.access(tag_set, MappedRegistry$TagSet_map);
+		else {
+			Bukkit.getLogger().log(Level.WARNING, "Get TagMap failed, input parameter class is " + tag_set.getClass().getName());
+			return null;
+		}
+	}
+
+	/**
+	 * 设置TagSet捕获的map变量。MappedRegistry.allTags对象由MappedRegistry$TagSet.fromMap()创建，该对象是一个匿名内部类，没有成员变量，但捕获了fromMap()传入的map对象作为储存Tag的对象，1_21_R2及以上使用
+	 * 
+	 * @param <T>
+	 * @param tag_set 类型为RegistryMaterials.a<T>，即MappedRegistry$TagSet<T>
+	 * @return
+	 * @since 1_21_R2
+	 */
+	public static <T> void setTagSetMap(Object tag_set, Map<TagKey<T>, HolderSet.Named<T>> map) {
+		if (Reflect.getClassForName("net.minecraft.core.MappedRegistry$TagSet").isInstance(tag_set))
+			Manipulator.setObject(tag_set, TagKeys.MappedRegistry$TagSet_map, map);
+	}
+
+	public static <T> void unboundAllTags(IRegistry<T> registry) {
+		NMSManipulator.setObject(registry, "net.minecraft.core.MappedRegistry.allTags", NMSManipulator.invoke(registry, "net.minecraft.core.MappedRegistry$TagSet.unbound()", null));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> HolderSet.Named<T> createTag(IRegistry<T> reg, TagKey<T> tag_key) {
+		return (HolderSet.Named<T>) NMSManipulator.invoke(reg, "net.minecraft.core.MappedRegistry.createTag(net.minecraft.tags.TagKey)", new Class<?>[] { tag_key.getClass() }, tag_key);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> HolderSet.Named<T> getOrCreateTag(IRegistry<T> reg, TagKey<T> tag_key) {
+		HolderSet.Named<T> holder_set = null;
+		if (Version.this_version.between("1_21_R0", "1_21_R2"))
+			holder_set = (HolderSet.Named<T>) NMSManipulator.invoke(reg, "net.minecraft.core.MappedRegistry.getOrCreateTag(net.minecraft.tags.TagKey)", new Class<?>[] { tag_key.getClass() }, tag_key);// 1.21.0为getHolder()
+		else if (Version.this_version.newerOrEqual("1_21_R2"))
+			holder_set = (HolderSet.Named<T>) NMSManipulator.invoke(reg, "net.minecraft.core.MappedRegistry.getOrCreateTagForRegistration(net.minecraft.tags.TagKey)", new Class<?>[] { tag_key.getClass() }, tag_key);// 1.21.3及以上为getOrCreateTagForRegistration()
+		return holder_set;
 	}
 
 	/**
@@ -42,15 +143,15 @@ public class TagUtils {
 	public static <T> HolderSet.Named<T> appendTagMembers(ResourceKey<? extends IRegistry<T>> resource_key, String namespaced_tag, Set<String> namespaced_members) {
 		IRegistry<T> registry = RegistryManager.getRegistry(resource_key);// 获取resource_key的注册表
 		TagKey<T> tag_key = getTagKey(resource_key, namespaced_tag); // 为新的tag创建一个TagKey
-		HolderSet.Named<T> tag_members = ((IRegistry<T>) registry).getOrCreateTag(tag_key);// 判断注册表中是否存在该tag的成员列表，存在则获取，不存在则新建
+		HolderSet.Named<T> tag_members = getOrCreateTag(registry, tag_key);// 判断注册表中是否存在该tag的成员列表，存在则获取，不存在则新建
 		List<Holder<T>> contents = new ArrayList<>();// 新的成员列表，将替换目标注册表下对应TagKey的HolderSet$Named.contents
 		for (String memb : namespaced_members) {
 			MinecraftKey nms_key = ResourceLocation.getResourceLocationFromNamespacedID(memb);// 获取每个成员的ResourceLocation(Spigot API反混淆为MinecraftKey)
 			Holder.c<T> memb_holder;// memb_holder类型为Holder$Reference，表示要添加的目标成员引用
 			try {
-				memb_holder = registry.getHolder(nms_key).orElseThrow();// 获取要添加的目标成员引用，目标不存在则抛出异常
+				memb_holder = RegistryManager.getRegistryHolder(registry, nms_key);// 获取要添加的目标成员引用，目标不存在则抛出异常
 			} catch (Exception ex) {
-				Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Holder of " + nms_key + ". It may doesn't exist");
+				Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Holder$Reference of " + nms_key + ". It may doesn't exist");
 				throw ex;
 			}
 			// 获取该目标成员引用的其他tag，并添加新tag后一起写入Holder$Reference.tags
@@ -71,8 +172,17 @@ public class TagUtils {
 	 * @param tag_key      要获取HolderSet的TagKey
 	 * @return 返回null或对应的HolderSet
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> HolderSet.Named<T> getTagMembers(ResourceKey<? extends IRegistry<T>> resource_key, TagKey<T> tag_key) {
-		return ((IRegistry<T>) RegistryManager.getRegistry(resource_key)).getTag(tag_key).orElse(null);
+		HolderSet.Named<T> holder_set = null;
+		IRegistry<T> reg = RegistryManager.getRegistry(resource_key);// 获取resource_key的注册表
+		if (Version.this_version.between("1_21_R0", "1_21_R2"))
+			holder_set = ((Optional<HolderSet.Named<T>>) NMSManipulator.invoke(reg, "net.minecraft.core.Registry.getTag(net.minecraft.tags.TagKey)", new Class<?>[] { tag_key.getClass() }, tag_key)).orElse(null);// 1.21.0为getHolder()
+		else if (Version.this_version.newerOrEqual("1_21_R2")) {
+			Map<TagKey<T>, HolderSet.Named<T>> tags = getAllTags(reg);
+			holder_set = (HolderSet.Named<T>) tags.get(tag_key);
+		}
+		return holder_set;
 	}
 
 	public static <T> HolderSet.Named<T> getTagMembers(ResourceKey<? extends IRegistry<T>> resource_key, String namespaced_tag) {
@@ -99,7 +209,7 @@ public class TagUtils {
 	}
 
 	/**
-	 * 为一个Holder.Reference对象添加Tag
+	 * 为一个Holder$Reference对象添加Tag
 	 * 
 	 * @param <T>
 	 * @param resource_key     tag对应的ResourceKey
@@ -109,10 +219,9 @@ public class TagUtils {
 	 */
 	public static <T> boolean addTag(TagKey<T> tag_key, Holder.c<T> holder_reference) {
 		HolderSet.Named<T> holder_set;
-		try {
-			holder_set = RegistryManager.getRegistry(ResourceLocation.getResourceKey(tag_key)).getTag(tag_key).orElseThrow();
-		} catch (Exception ex) {
-			Bukkit.getLogger().log(Level.SEVERE, "Adding tag " + tag_key + " failed", ex);
+		holder_set = getTagMembers(ResourceLocation.getResourceKey(tag_key), tag_key);
+		if (holder_set == null) {
+			Bukkit.getLogger().log(Level.SEVERE, "Adding tag " + tag_key + " failed");
 			return false;
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));
@@ -168,10 +277,9 @@ public class TagUtils {
 	 */
 	public static <T> boolean removeTag(TagKey<T> tag_key, Holder.c<T> holder_reference) {
 		HolderSet.Named<T> holder_set;
-		try {
-			holder_set = RegistryManager.getRegistry(ResourceLocation.getResourceKey(tag_key)).getTag(tag_key).orElseThrow();
-		} catch (Exception ex) {
-			Bukkit.getLogger().log(Level.SEVERE, "Adding tag " + tag_key + " failed", ex);
+		holder_set = getTagMembers(ResourceLocation.getResourceKey(tag_key), tag_key);
+		if (holder_set == null) {
+			Bukkit.getLogger().log(Level.SEVERE, "Remove tag " + tag_key + " failed");
 			return false;
 		}
 		List<Holder<T>> contents = new ArrayList<>(HolderSetUtils.get_HolderSet_contents(holder_set));

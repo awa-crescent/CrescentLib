@@ -25,6 +25,7 @@ import net.minecraft.core.registries.Registries;
 
 @SuppressWarnings("deprecation")
 public final class EnchantmentManager implements Listener {
+	private static boolean registry_frozen = RegistryManager.isFrozen(Registries.ENCHANTMENT);
 	public static boolean can_enchant_stack = false;// 设置是否可以附魔堆叠物品
 	public static ArrayList<Set<String>> enchantable_items_set = new ArrayList<>();// 需要添加可附魔的新物品
 
@@ -37,7 +38,7 @@ public final class EnchantmentManager implements Listener {
 	 */
 	public static void register(EnchantmentEntry enchantment) {
 		if (enchantment.use_nms) {
-			if (RegistryManager.isFrozen(Registries.ENCHANTMENT))
+			if (registry_frozen)
 				RegistryManager.unfreezeRegistry(Registries.ENCHANTMENT);
 			enchantment.castToNMS().register();
 		} else {
@@ -86,6 +87,7 @@ public final class EnchantmentManager implements Listener {
 	 */
 	public static void flush() {
 		RegistryManager.freezeRegistry(Registries.ENCHANTMENT);
+		registry_frozen = true;
 	}
 
 	@EventHandler

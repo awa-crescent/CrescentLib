@@ -147,4 +147,9 @@ public class Tag {
 	public boolean isEmpty() {
 		return members.isEmpty();
 	}
+
+	@Override
+	public String toString() {
+		return namespaced_tag.toString();
+	}
 }

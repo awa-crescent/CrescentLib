@@ -2,6 +2,7 @@ package lib.crescent.nms.core;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -11,11 +12,13 @@ import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.Version;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.World;
@@ -31,20 +34,13 @@ public class RegistryManager {
 	public static final IRegistry<DimensionManager> dimension_type;
 	public static final IRegistry<BiomeBase> biome;
 
-	private static HashMap<ResourceKey<? extends IRegistry<?>>, Boolean> registry_frozen_entries = new HashMap<>();
-
 	static {
-		enchantment = loadRegistry(Registries.ENCHANTMENT);
-		item = loadRegistry(Registries.ITEM);
-		dimension = loadRegistry(Registries.DIMENSION);
-		dimension_type = loadRegistry(Registries.DIMENSION_TYPE);
-		level_stem = loadRegistry(Registries.LEVEL_STEM);
-		biome = loadRegistry(Registries.BIOME);
-	}
-
-	private static <T> IRegistry<T> loadRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
-		registry_frozen_entries.put(resource_key, true);
-		return getRegistry(resource_key);
+		enchantment = getRegistry(Registries.ENCHANTMENT);
+		item = getRegistry(Registries.ITEM);
+		dimension = getRegistry(Registries.DIMENSION);
+		dimension_type = getRegistry(Registries.DIMENSION_TYPE);
+		level_stem = getRegistry(Registries.LEVEL_STEM);
+		biome = getRegistry(Registries.BIOME);
 	}
 
 	/**
@@ -63,7 +59,6 @@ public class RegistryManager {
 			registry = (IRegistry<T>) (((Optional<Registry<T>>) (NMSManipulator.invoke(ServerEntry.registryAccess, "net.minecraft.core.RegistryAccess.lookup(net.minecraft.resources.ResourceKey)", new Class<?>[] { resource_key.getClass() }, resource_key))).orElseThrow());// 1.21.3及以上为lookup()
 		if (registry == null)
 			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry of " + resource_key);
-
 		return registry;
 	}
 
@@ -82,7 +77,7 @@ public class RegistryManager {
 		else if (Version.this_version.newerOrEqual("1_21_R2"))
 			reg_value = (T) (NMSManipulator.invoke(reg, "net.minecraft.core.Registry.getValue(net.minecraft.resources.ResourceKey)", new Class<?>[] { resource_key.getClass() }, resource_key));// 1.21.3及以上为getValue()
 		if (reg_value == null)
-			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + reg);
+			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + resource_key);
 		return reg_value;
 	}
 
@@ -101,7 +96,7 @@ public class RegistryManager {
 		else if (Version.this_version.newerOrEqual("1_21_R2"))
 			reg_value = (T) (NMSManipulator.invoke(reg, "net.minecraft.core.Registry.getValue(net.minecraft.resources.ResourceLocation)", new Class<?>[] { resource_loc.getClass() }, resource_loc));// 1.21.3及以上为getValue()
 		if (reg_value == null)
-			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + reg);
+			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + resource_loc);
 		return reg_value;
 	}
 
@@ -117,12 +112,12 @@ public class RegistryManager {
 		else if (Version.this_version.newerOrEqual("1_21_R2"))
 			holder = ((Optional<Holder.c<T>>) (NMSManipulator.invoke(reg, "net.minecraft.core.Registry.get(net.minecraft.resources.ResourceLocation)", new Class<?>[] { resource_loc.getClass() }, resource_loc))).orElse(null);// 1.21.3及以上为get()
 		if (holder == null)
-			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + reg);
+			Bukkit.getLogger().log(Level.SEVERE, "NMS cannot get Registry value of " + resource_loc);
 		return holder;
 	}
 
 	public static <T> boolean isFrozen(ResourceKey<? extends IRegistry<T>> resource_key) {
-		return registry_frozen_entries.get(resource_key);
+		return (boolean) NMSManipulator.access(getRegistry(resource_key), "net.minecraft.core.MappedRegistry.frozen");
 	}
 
 	/**
@@ -140,9 +135,7 @@ public class RegistryManager {
 	 * @return 操作是否成功
 	 */
 	public static <T> boolean unfreezeRegistry(ResourceKey<? extends IRegistry<T>> resource_key) {
-		boolean op_state = unfreezeRegistry(getRegistry(resource_key));
-		registry_frozen_entries.put(resource_key, !op_state);
-		return op_state;
+		return unfreezeRegistry(getRegistry(resource_key));
 	}
 
 	/**
@@ -154,7 +147,15 @@ public class RegistryManager {
 		if (Version.this_version.between("1_21_R0", "1_21_R2"))
 			registry.freeze();
 		else if (Version.this_version.newerOrEqual("1_21_R2")) {
-			
+			Object tag_set_obj = TagKeys.getAllTagsSetObject(registry);
+			Map<TagKey<T>, HolderSet.Named<T>> tag_map = new HashMap<>(TagKeys.getTagSetMap(tag_set_obj));
+			Map<TagKey<T>, HolderSet.Named<T>> frozenTags = TagKeys.getFrozenTags(registry);
+			tag_map.forEach(frozenTags::putIfAbsent);// 如果tag_map存在某个键值对，但frozenTags中没有该键值对，则拷贝到frozenTags中
+			TagKeys.unboundAllTags(registry);
+			registry.freeze();
+			frozenTags.forEach(tag_map::putIfAbsent);
+			TagKeys.setTagSetMap(tag_set_obj, tag_map);
+			NMSManipulator.setObject(registry, "net.minecraft.core.MappedRegistry.allTags", tag_set_obj);
 		}
 	}
 

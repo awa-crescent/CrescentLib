@@ -37,4 +37,8 @@ public abstract class MappingsEntry {
 	public static String getObfuscatedName(String mojang_name) {
 		return mappings_entries.getString(mojang_name);
 	}
+
+	public static String getClassObfuscatedName(String nms_class_name) {
+		return getObfuscatedName(nms_class_name + ".class");
+	}
 }

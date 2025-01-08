@@ -49,7 +49,7 @@ public class HolderSetUtils {
 	}
 
 	public static <T> String getKeyNamespacedID(HolderSet<T> holder_set) {
-		return TagUtils.getTagKeyNamespacedID(getKey(holder_set));
+		return TagKeys.getTagKeyNamespacedID(getKey(holder_set));
 	}
 
 	@SuppressWarnings("unchecked")

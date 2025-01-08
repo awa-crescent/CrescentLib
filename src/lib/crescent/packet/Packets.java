@@ -157,6 +157,7 @@ public class Packets {
 		if (packet.commonPlayerSpawnInfo().dimension().equals(player_dim)) {
 			CommonPlayerSpawnInfo refresh_info = player.createCommonSpawnInfo(player.serverLevel());
 			Vec3D pos = player.position();
+			@SuppressWarnings("unused")
 			Vec3D eye_dir = player.getLookAngle();
 			if (player_dim.equals(WorldDimension.OVERWORLD)) {
 				NMSManipulator.setObject(refresh_info, "net.minecraft.network.protocol.game.CommonPlayerSpawnInfo.dimension", WorldDimension.END);

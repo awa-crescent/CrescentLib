@@ -17,7 +17,7 @@ import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.core.HolderSetUtils;
 import lib.crescent.nms.core.RegistryManager;
 import lib.crescent.nms.core.ResourceLocation;
-import lib.crescent.nms.core.TagUtils;
+import lib.crescent.nms.core.TagKeys;
 import lib.crescent.tag.Tag;
 import lib.crescent.utils.format.FormattingStyle;
 import net.minecraft.core.Holder;
@@ -111,7 +111,7 @@ public class NMSEnchantment {
 	public static HashSet<TagKey<Enchantment>> getTagKeysFrom(Set<String> tags) {
 		HashSet<TagKey<Enchantment>> set = new HashSet<TagKey<Enchantment>>();
 		for (String tag : tags)
-			set.add(TagUtils.getTagKey(Registries.ENCHANTMENT, tag));
+			set.add(TagKeys.getTagKey(Registries.ENCHANTMENT, tag));
 		return set;
 	}
 
@@ -126,12 +126,12 @@ public class NMSEnchantment {
 	}
 
 	public NMSEnchantment addTag(String tag) {
-		tags.add(TagUtils.getTagKey(Registries.ENCHANTMENT, tag));
+		tags.add(TagKeys.getTagKey(Registries.ENCHANTMENT, tag));
 		return this;
 	}
 
 	public NMSEnchantment removeTag(String tag) {
-		tags.remove(TagUtils.getTagKey(Registries.ENCHANTMENT, tag));
+		tags.remove(TagKeys.getTagKey(Registries.ENCHANTMENT, tag));
 		return this;
 	}
 
@@ -141,7 +141,7 @@ public class NMSEnchantment {
 	 * @return 全部tags均添加成功则返回true，否则返回false
 	 */
 	protected boolean applyTags() {
-		Set<TagKey<Enchantment>> invalid_tags = TagUtils.addTag(tags, reference);
+		Set<TagKey<Enchantment>> invalid_tags = TagKeys.addTag(tags, reference);
 		if (invalid_tags != null) {
 			Bukkit.getLogger().log(Level.SEVERE, "Invalid tags " + invalid_tags + " for enchantment " + enchantment_id);
 			return false;

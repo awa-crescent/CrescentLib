@@ -8,7 +8,7 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import lib.crescent.nms.core.EquipmentSlotUtils;
 import lib.crescent.nms.core.HolderSetUtils;
-import lib.crescent.nms.core.TagUtils;
+import lib.crescent.nms.core.TagKeys;
 import lib.crescent.tag.Tag;
 import net.minecraft.core.HolderSet;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -39,7 +39,7 @@ public class NMSEnchantmentDefinition {
 	public Enchantment.c castToNMSEnchantmentDefinition() {
 		HolderSet<Item> nms_supported_items = null;
 		if (supported_items.getMembers() == null) {// 不设置成员则认为是该tag已经存在且有成员
-			if ((nms_supported_items = TagUtils.getItemTagMembers(supported_items.getNamespacedTag())) == null)// 寻找tag的成员
+			if ((nms_supported_items = TagKeys.getItemTagMembers(supported_items.getNamespacedTag())) == null)// 寻找tag的成员
 				Bukkit.getLogger().log(Level.SEVERE, "Cannot find supported_items. Its tag " + supported_items + " doesn't exist");// 找不到就报错
 		} else {
 			if (supported_items.getNamespacedTag() == null)// 如果不指定Tag名称，则使用HolderSet.Direct，这是无Tag只包含成员的集合
@@ -51,7 +51,7 @@ public class NMSEnchantmentDefinition {
 		}
 		HolderSet<Item> nms_primary_items = null;
 		if (primary_items.getMembers() == null) {// 不设置成员则认为是该tag已经存在且有成员
-			if ((nms_primary_items = TagUtils.getItemTagMembers(primary_items.getNamespacedTag())) == null)// 寻找tag的成员
+			if ((nms_primary_items = TagKeys.getItemTagMembers(primary_items.getNamespacedTag())) == null)// 寻找tag的成员
 				Bukkit.getLogger().log(Level.SEVERE, "Cannot find primary_items. Its tag " + supported_items + " doesn't exist");
 		} else {
 			if (primary_items.getNamespacedTag() == null)
