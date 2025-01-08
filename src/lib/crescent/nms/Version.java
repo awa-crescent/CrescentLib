@@ -1,11 +1,13 @@
 package lib.crescent.nms;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
 public class Version {
 	public static final Version this_version;
+	private static final HashMap<String, Integer> ver_revision_num = new HashMap<>();
 
 	public final String nms_version;// NMS版本，即craftbukkit的包名中的版本，例如1_21_R0
 	public final int nms_major;
@@ -13,6 +15,25 @@ public class Version {
 	public final int nms_revision;
 
 	static {
+		// 主版本号数量
+		ver_revision_num.put("major", 1);
+		// 主版本号对应的此版本号数量
+		ver_revision_num.put("1", 21);
+		// 次版本号对应的修订版本号数量，不包含R0，R0不是稳定发行版
+		ver_revision_num.put("1.8", 3);
+		ver_revision_num.put("1.9", 2);
+		ver_revision_num.put("1.10", 1);
+		ver_revision_num.put("1.11", 1);
+		ver_revision_num.put("1.12", 1);
+		ver_revision_num.put("1.13", 2);
+		ver_revision_num.put("1.14", 1);
+		ver_revision_num.put("1.15", 1);
+		ver_revision_num.put("1.16", 3);
+		ver_revision_num.put("1.17", 1);
+		ver_revision_num.put("1.18", 2);
+		ver_revision_num.put("1.19", 3);
+		ver_revision_num.put("1.20", 3);
+		ver_revision_num.put("1.21", 3);// 1.21版本有3个稳定NMS版本和R0，供4个NMS版本
 		this_version = Version.fromBukkitVersion(Bukkit.getBukkitVersion());
 	}
 
@@ -22,6 +43,13 @@ public class Version {
 		nms_major = Integer.parseInt(v[0]);
 		nms_minor = Integer.parseInt(v[1]);
 		nms_revision = Integer.parseInt(v[2].replace("R", ""));
+	}
+
+	public Version(int nms_major, int nms_minor, int nms_revision) {
+		this.nms_major = nms_major;
+		this.nms_minor = nms_minor;
+		this.nms_revision = nms_revision;
+		nms_version = nms_major + "_" + nms_minor + "_R" + nms_revision;
 	}
 
 	public boolean newerThan(String nms_version) {
@@ -79,6 +107,49 @@ public class Version {
 		return newerOrEqual(version1.nms_version) && olderThan(version2.nms_version);
 	}
 
+	/**
+	 * 上一个版本
+	 * 
+	 * @return
+	 */
+	public Version previous() {
+		if (nms_revision > 0)
+			return new Version(nms_major, nms_minor, nms_revision - 1);
+		else {
+			int pre_minor = nms_minor - 1;
+			if (nms_minor > 0)
+				return new Version(nms_major, pre_minor, ver_revision_num.get(nms_major + "." + pre_minor));
+			else {
+				int pre_major = nms_major - 1;
+				pre_minor = ver_revision_num.get(Integer.toString(pre_major));
+				if (nms_major > 0)
+					return new Version(pre_major, pre_major, ver_revision_num.get(pre_major + "." + pre_minor));
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 下一个版本
+	 * 
+	 * @return
+	 */
+	public Version next() {
+		if (nms_revision < ver_revision_num.get(nms_major + "." + nms_minor))
+			return new Version(nms_major, nms_minor, nms_revision + 1);
+		else {
+			int next_minor = nms_minor + 1;
+			if (nms_minor < ver_revision_num.get(Integer.toString(nms_major)))
+				return new Version(nms_major, next_minor, 0);
+			else {
+				int next_major = nms_major + 1;
+				if (nms_major > ver_revision_num.get("major"))
+					return new Version(next_major, 0, 0);
+			}
+		}
+		return null;
+	}
+
 	public static Version fromBukkitVersion(String bukkit_ver) {
 		return new Version(bukkitVersionToNMSVersion(bukkit_ver));
 	}
@@ -97,6 +168,14 @@ public class Version {
 			Bukkit.getLogger().log(Level.SEVERE, "Unknown Bukkit version: " + bukkit_ver);
 		}
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Version v) {
+			return (nms_major == v.nms_major) && (nms_major == v.nms_minor) && (nms_major == v.nms_revision);
+		}
+		return false;
 	}
 
 	@Override
