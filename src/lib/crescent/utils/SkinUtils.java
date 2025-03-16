@@ -15,8 +15,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
-import lib.crescent.Reflect;
-import lib.crescent.utils.format.FormattingStyle;
+import lib.lunar.jvm.Reflect;
+import lib.lunar.utils.format.FormattingStyle;
 
 //https://github.com/deanveloper/SkullCreator/blob/main/src/main/java/day/dean/skullcreator/SkullCreator.java
 public class SkinUtils {

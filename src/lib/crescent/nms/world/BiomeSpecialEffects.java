@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.packet.Packets;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEffect;

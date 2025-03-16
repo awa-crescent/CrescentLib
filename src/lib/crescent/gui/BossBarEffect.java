@@ -1,4 +1,4 @@
-package lib.crescent.utils;
+package lib.crescent.gui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import lib.crescent.entity.EntityUtils;
-import lib.crescent.utils.format.FormattingStyle;
-import lib.crescent.utils.locale.Locale;
+import lib.lunar.utils.format.FormattingStyle;
+import lib.lunar.utils.locale.Locale;
 
 public class BossBarEffect implements Listener {
 	private boolean event_registerd = false;

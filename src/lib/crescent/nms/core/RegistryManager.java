@@ -8,9 +8,9 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
-import lib.crescent.nms.Version;
+import lib.lunar.nativemc.NMSManipulator;
+import lib.lunar.nativemc.Version;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
@@ -101,7 +101,7 @@ public class RegistryManager {
 	}
 
 	public static <T> T getRegistryValue(IRegistry<T> reg, ResourceKey<? extends IRegistry<T>> registries_entry, String reg_key) {
-		return getRegistryValue(reg, ResourceLocation.getResourceKey(registries_entry, reg_key));
+		return getRegistryValue(reg, ResourceLocationBuilder.getResourceKey(registries_entry, reg_key));
 	}
 
 	@SuppressWarnings("unchecked")

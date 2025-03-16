@@ -7,9 +7,9 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import lib.crescent.Reflect;
-import lib.crescent.nms.MappingsEntry;
-import lib.crescent.nms.NMSManipulator;
+import lib.lunar.jvm.Reflect;
+import lib.lunar.nativemc.MappingsEntry;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.server.level.PlayerChunk;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;

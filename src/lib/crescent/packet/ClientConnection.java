@@ -5,8 +5,8 @@ import java.util.List;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;

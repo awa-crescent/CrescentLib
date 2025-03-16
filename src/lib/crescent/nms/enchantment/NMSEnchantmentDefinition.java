@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.EquipmentSlot;
 
-import lib.crescent.nms.core.EquipmentSlotUtils;
+import lib.crescent.nms.EquipmentSlotUtils;
 import lib.crescent.nms.core.HolderSetUtils;
 import lib.crescent.nms.core.TagKeys;
 import lib.crescent.tag.Tag;

@@ -8,9 +8,9 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
-import lib.crescent.Reflect;
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.tag.Tag;
+import lib.lunar.jvm.Reflect;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
@@ -57,7 +57,7 @@ public class HolderSetUtils {
 		IRegistry<T> registry = RegistryManager.getRegistry(resource_key);// 获取resource_key的注册表
 		List<Holder<T>> contents = new ArrayList<>();
 		for (String memb : namespaced_members) {
-			MinecraftKey nms_key = ResourceLocation.getResourceLocationFromNamespacedID(memb);
+			MinecraftKey nms_key = ResourceLocationBuilder.getResourceLocationFromNamespacedID(memb);
 			Holder.c<T> memb_holder;// memb_holder类型为Holder$Reference，表示要添加的目标成员引用
 			try {
 				memb_holder = registry.getHolder(nms_key).orElseThrow();// 获取要添加的目标成员引用，目标不存在则抛出异常
@@ -78,8 +78,8 @@ public class HolderSetUtils {
 		return holder.getRegisteredName();
 	}
 
-	public static <T> ResourceLocation toResourceLocation(Holder<T> holder) {
-		return new ResourceLocation(toString(holder));
+	public static <T> ResourceLocationBuilder toResourceLocation(Holder<T> holder) {
+		return new ResourceLocationBuilder(toString(holder));
 	}
 
 	public static <T> List<String> toString(HolderSet<T> holder_set) {
@@ -90,8 +90,8 @@ public class HolderSetUtils {
 		return list;
 	}
 
-	public static <T> List<ResourceLocation> toResourceLocation(HolderSet<T> holder_set) {
-		List<ResourceLocation> list = new ArrayList<>();
+	public static <T> List<ResourceLocationBuilder> toResourceLocation(HolderSet<T> holder_set) {
+		List<ResourceLocationBuilder> list = new ArrayList<>();
 		List<Holder<T>> contents = get_HolderSet_contents(holder_set);
 		for (Holder<T> holder : contents)
 			list.add(toResourceLocation(holder));

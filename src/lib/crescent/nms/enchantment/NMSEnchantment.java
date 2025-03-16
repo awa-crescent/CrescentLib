@@ -12,14 +12,14 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import lib.crescent.enchantment.EnchantmentEntry;
 import lib.crescent.nms.CraftBukkitEntry;
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.core.HolderSetUtils;
 import lib.crescent.nms.core.RegistryManager;
-import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.nms.core.ResourceLocationBuilder;
 import lib.crescent.nms.core.TagKeys;
 import lib.crescent.tag.Tag;
-import lib.crescent.utils.format.FormattingStyle;
+import lib.lunar.nativemc.NMSManipulator;
+import lib.lunar.utils.format.FormattingStyle;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IRegistry;
@@ -89,7 +89,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespace, String enchantment_id) {
-		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocation.getResourceLocationFromNamespacedID(namespace, enchantment_id));
+		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocationBuilder.getResourceLocationFromNamespacedID(namespace, enchantment_id));
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class NMSEnchantment {
 	 * @return 返回该id对应的附魔引用，即Holder$Reference，不存在则返回null
 	 */
 	public static Holder.c<Enchantment> getReference(String namespaced_enchantment_id) {
-		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocation.getResourceLocationFromNamespacedID(namespaced_enchantment_id));
+		return RegistryManager.getRegistryHolder(RegistryManager.enchantment, ResourceLocationBuilder.getResourceLocationFromNamespacedID(namespaced_enchantment_id));
 	}
 
 	/**

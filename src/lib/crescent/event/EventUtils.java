@@ -8,8 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
-import lib.crescent.Manipulator;
-import lib.crescent.VMEntry;
+import lib.lunar.jvm.Manipulator;
+import lib.lunar.jvm.VMEntry;
 
 public class EventUtils {
 	/**

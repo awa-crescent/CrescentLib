@@ -20,7 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.Plugin;
 
-import lib.crescent.utils.serialize.AutoSerializable;
+import lib.lunar.utils.serialize.AutoSerializable;
 
 /**
  * 能记录对目标对象的属性值变更，用于追踪对目标的属性值更改了多少，例如可以用于死亡时复原实体的属性值

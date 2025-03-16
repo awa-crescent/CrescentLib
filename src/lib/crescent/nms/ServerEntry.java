@@ -4,9 +4,9 @@ import java.util.function.UnaryOperator;
 
 import org.bukkit.Bukkit;
 
-import lib.crescent.Manipulator;
-import lib.crescent.utils.format.FormattingStyle;
-import lib.crescent.utils.format.FormattingStyle.FormattingType;
+import lib.lunar.jvm.Manipulator;
+import lib.lunar.utils.format.FormattingStyle;
+import lib.lunar.utils.format.FormattingStyle.FormattingType;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.IRegistryCustom;
 import net.minecraft.core.LayeredRegistryAccess;

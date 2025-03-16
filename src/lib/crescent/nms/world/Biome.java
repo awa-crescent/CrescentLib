@@ -1,10 +1,10 @@
 package lib.crescent.nms.world;
 
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.core.RegistryManager;
-import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.nms.core.ResourceLocationBuilder;
 import lib.crescent.packet.Packets;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.biome.BiomeBase;
 import net.minecraft.world.level.biome.BiomeBase.ClimateSettings;
@@ -159,7 +159,7 @@ public class Biome {
 
 	}
 
-	public static final BiomeBase getBiome(ResourceLocation biome) {
+	public static final BiomeBase getBiome(ResourceLocationBuilder biome) {
 		return RegistryManager.getRegistryValue(RegistryManager.biome, biome.castToNMS());
 	}
 
@@ -170,6 +170,6 @@ public class Biome {
 	 * @return
 	 */
 	public static final BiomeBase getBiome(String biome) {
-		return getBiome(ResourceLocation.getResourceLocationFromNamespacedID(biome));
+		return getBiome(ResourceLocationBuilder.getResourceLocationFromNamespacedID(biome));
 	}
 }

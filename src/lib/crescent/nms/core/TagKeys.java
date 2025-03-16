@@ -11,10 +11,10 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
-import lib.crescent.Manipulator;
-import lib.crescent.Reflect;
-import lib.crescent.nms.NMSManipulator;
-import lib.crescent.nms.Version;
+import lib.lunar.jvm.Manipulator;
+import lib.lunar.jvm.Reflect;
+import lib.lunar.nativemc.NMSManipulator;
+import lib.lunar.nativemc.Version;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.HolderSet.Named;
@@ -29,7 +29,7 @@ public class TagKeys {
 	private static final String MappedRegistry$TagSet_map = "val$map";
 
 	public static <T> TagKey<T> getTagKey(ResourceKey<? extends IRegistry<T>> resource_key, String resource_location) {
-		return TagKey.create(resource_key, ResourceLocation.getResourceLocationFromNamespacedID(resource_location));
+		return TagKey.create(resource_key, ResourceLocationBuilder.getResourceLocationFromNamespacedID(resource_location));
 	}
 
 	public static <T> String getTagKeyNamespacedID(TagKey<T> tag_key) {
@@ -146,7 +146,7 @@ public class TagKeys {
 		HolderSet.Named<T> tag_members = getOrCreateTag(registry, tag_key);// 判断注册表中是否存在该tag的成员列表，存在则获取，不存在则新建
 		List<Holder<T>> contents = new ArrayList<>();// 新的成员列表，将替换目标注册表下对应TagKey的HolderSet$Named.contents
 		for (String memb : namespaced_members) {
-			MinecraftKey nms_key = ResourceLocation.getResourceLocationFromNamespacedID(memb);// 获取每个成员的ResourceLocation(Spigot API反混淆为MinecraftKey)
+			MinecraftKey nms_key = ResourceLocationBuilder.getResourceLocationFromNamespacedID(memb);// 获取每个成员的ResourceLocation(Spigot API反混淆为MinecraftKey)
 			Holder.c<T> memb_holder;// memb_holder类型为Holder$Reference，表示要添加的目标成员引用
 			try {
 				memb_holder = RegistryManager.getRegistryHolder(registry, nms_key);// 获取要添加的目标成员引用，目标不存在则抛出异常
@@ -219,7 +219,7 @@ public class TagKeys {
 	 */
 	public static <T> boolean addTag(TagKey<T> tag_key, Holder.c<T> holder_reference) {
 		HolderSet.Named<T> holder_set;
-		holder_set = getTagMembers(ResourceLocation.getResourceKey(tag_key), tag_key);
+		holder_set = getTagMembers(ResourceLocationBuilder.getResourceKey(tag_key), tag_key);
 		if (holder_set == null) {
 			Bukkit.getLogger().log(Level.SEVERE, "Adding tag " + tag_key + " failed");
 			return false;
@@ -277,7 +277,7 @@ public class TagKeys {
 	 */
 	public static <T> boolean removeTag(TagKey<T> tag_key, Holder.c<T> holder_reference) {
 		HolderSet.Named<T> holder_set;
-		holder_set = getTagMembers(ResourceLocation.getResourceKey(tag_key), tag_key);
+		holder_set = getTagMembers(ResourceLocationBuilder.getResourceKey(tag_key), tag_key);
 		if (holder_set == null) {
 			Bukkit.getLogger().log(Level.SEVERE, "Remove tag " + tag_key + " failed");
 			return false;

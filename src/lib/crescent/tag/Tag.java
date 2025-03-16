@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lib.crescent.item.ItemUtils;
-import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.nms.core.ResourceLocationBuilder;
 
 /**
  * 包装Tag名称以及对应的物品
@@ -37,11 +37,11 @@ public class Tag {
 	public static final Tag SHIELD_ENCHANTABLE = ItemUtils.createEnchantableItemTag("enchantable/shield", Set.of("minecraft:shield"));
 	public static final Tag GENERIC_BOWS_ENCHANTABLE = ItemUtils.createEnchantableItemTag("enchantable/generic_bows", Set.of("minecraft:bow", "minecraft:crossbow"));
 
-	protected ResourceLocation namespaced_tag;
+	protected ResourceLocationBuilder namespaced_tag;
 	protected HashSet<String> members;
 
 	public Tag(String namespace, String tag, Set<String> members) {
-		this.namespaced_tag = new ResourceLocation(namespace, tag);
+		this.namespaced_tag = new ResourceLocationBuilder(namespace, tag);
 		this.members = members instanceof HashSet<String> hash_set_members ? hash_set_members : new HashSet<>(members);
 	}
 
@@ -50,7 +50,7 @@ public class Tag {
 	}
 
 	public Tag(String namespace, String tag) {
-		this.namespaced_tag = new ResourceLocation(namespace, tag);
+		this.namespaced_tag = new ResourceLocationBuilder(namespace, tag);
 		this.members = null;
 	}
 
@@ -60,19 +60,19 @@ public class Tag {
 	}
 
 	public Tag(String namespaced_tag) {
-		this.namespaced_tag = new ResourceLocation(namespaced_tag);
+		this.namespaced_tag = new ResourceLocationBuilder(namespaced_tag);
 	}
 
 	public Tag(String tag, String[] members) {
 		this(tag, Set.of(members));
 	}
 
-	public Tag(ResourceLocation namespaced_tag) {
+	public Tag(ResourceLocationBuilder namespaced_tag) {
 		this.namespaced_tag = namespaced_tag;
 		this.members = null;
 	}
 
-	public Tag(ResourceLocation namespaced_tag, Set<String> members) {
+	public Tag(ResourceLocationBuilder namespaced_tag, Set<String> members) {
 		this(namespaced_tag);
 		this.members = members instanceof HashSet<String> hash_set_members ? hash_set_members : new HashSet<>(members);
 	}
@@ -89,7 +89,7 @@ public class Tag {
 		return namespaced_tag.toString();
 	}
 
-	public ResourceLocation getTagResourceLocation() {
+	public ResourceLocationBuilder getTagResourceLocation() {
 		return namespaced_tag;
 	}
 

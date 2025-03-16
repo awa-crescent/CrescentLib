@@ -1,24 +1,24 @@
 package lib.crescent.nms.core;
 
-import lib.crescent.Manipulator;
-import lib.crescent.Reflect;
-import lib.crescent.nms.MappingsEntry;
+import lib.lunar.jvm.Manipulator;
+import lib.lunar.jvm.Reflect;
+import lib.lunar.nativemc.MappingsEntry;
 import net.minecraft.core.IRegistry;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 
-public class ResourceLocation {
+public class ResourceLocationBuilder {
 	protected String namespace;
 	protected String location;// 又名id
 
-	public ResourceLocation(String namespaced_id) {
+	public ResourceLocationBuilder(String namespaced_id) {
 		String[] namespace_id = parseNamespacedID(namespaced_id);
 		this.namespace = namespace_id[0];
 		this.location = namespace_id[1];
 	}
 
-	public ResourceLocation(String namespace, String id) {
+	public ResourceLocationBuilder(String namespace, String id) {
 		this.namespace = namespace;
 		this.location = id;
 	}

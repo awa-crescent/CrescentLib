@@ -3,7 +3,7 @@ package lib.crescent.nms.world;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_21_R1.CraftWorld;
 
-import lib.crescent.nms.NMSManipulator;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.level.dimension.WorldDimension;

@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
-import lib.crescent.utils.trigger.Trigger;
-import lib.crescent.utils.trigger.TriggerCondition;
+import lib.lunar.utils.trigger.Trigger;
+import lib.lunar.utils.trigger.TriggerCondition;
 
 public abstract class TriggerableEnchantment extends EnchantmentEntry {
 	protected LivingEntity trigger_entity = null;// 判断能否触发附魔效果的实体，将检测它的对应位置的物品是否有该附魔

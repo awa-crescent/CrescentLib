@@ -10,11 +10,11 @@ import org.bukkit.entity.Player;
 
 import com.mojang.serialization.DynamicOps;
 
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.ServerEntry;
 import lib.crescent.nms.world.DimensionType;
 import lib.crescent.nms.world.LevelChunk;
 import lib.crescent.nms.world.LevelStem;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistrySynchronization;
 import net.minecraft.nbt.DynamicOpsNBT;

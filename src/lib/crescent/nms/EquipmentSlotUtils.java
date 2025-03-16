@@ -1,4 +1,4 @@
-package lib.crescent.nms.core;
+package lib.crescent.nms;
 
 import java.util.Locale;
 

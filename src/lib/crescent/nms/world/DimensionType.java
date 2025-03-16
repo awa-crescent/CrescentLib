@@ -4,11 +4,11 @@ import java.util.OptionalLong;
 
 import org.bukkit.World.Environment;
 
-import lib.crescent.nms.NMSManipulator;
 import lib.crescent.nms.core.RegistryManager;
-import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.nms.core.ResourceLocationBuilder;
 import lib.crescent.nms.world.LevelStem.Type;
 import lib.crescent.packet.Packets;
+import lib.lunar.nativemc.NMSManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
@@ -29,7 +29,7 @@ public class DimensionType {
 	}
 
 	public static Holder.c<DimensionManager> getDimensionTypeHolder(String type) {
-		return RegistryManager.getRegistryHolder(RegistryManager.dimension_type, ResourceLocation.getResourceLocationFromNamespacedID(type));
+		return RegistryManager.getRegistryHolder(RegistryManager.dimension_type, ResourceLocationBuilder.getResourceLocationFromNamespacedID(type));
 	}
 
 	public static DimensionManager getDimensionType(Type type) {
@@ -296,7 +296,7 @@ public class DimensionType {
 	 * @param effectsLocation
 	 */
 	public static void setEffectsLocation(DimensionManager dimension, String effectsLocation) {
-		setDimensionManagerObjectValue(dimension, "effectsLocation", ResourceLocation.getResourceLocationFromNamespacedID(effectsLocation));
+		setDimensionManagerObjectValue(dimension, "effectsLocation", ResourceLocationBuilder.getResourceLocationFromNamespacedID(effectsLocation));
 	}
 
 	public static void setEffectsLocation(Type dimension, String effectsLocation) {
@@ -342,7 +342,7 @@ public class DimensionType {
 		return RegistryManager.getRegistryValue(RegistryManager.dimension_type, dim);
 	}
 
-	public static final DimensionManager getDimensionType(ResourceLocation dim) {
+	public static final DimensionManager getDimensionType(ResourceLocationBuilder dim) {
 		return getDimensionType(dim.castToNMS());
 	}
 
@@ -353,6 +353,6 @@ public class DimensionType {
 	 * @return
 	 */
 	public static final DimensionManager getDimensionType(String dim) {
-		return getDimensionType(ResourceLocation.getResourceLocationFromNamespacedID(dim));
+		return getDimensionType(ResourceLocationBuilder.getResourceLocationFromNamespacedID(dim));
 	}
 }

@@ -10,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import lib.crescent.utils.serialize.AutoSerializable;
+import lib.lunar.utils.serialize.AutoSerializable;
 
 public class EntityRelatedObject<T> implements Listener, Serializable, AutoSerializable {
 	/**

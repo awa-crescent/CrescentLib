@@ -3,7 +3,7 @@ package lib.crescent.nms.world;
 import org.bukkit.World.Environment;
 
 import lib.crescent.nms.core.RegistryManager;
-import lib.crescent.nms.core.ResourceLocation;
+import lib.crescent.nms.core.ResourceLocationBuilder;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.level.dimension.WorldDimension;
 
@@ -64,7 +64,7 @@ public class LevelStem {
 		return RegistryManager.getRegistryValue(RegistryManager.level_stem, dim);
 	}
 
-	public static final WorldDimension getLevelStem(ResourceLocation dim) {
+	public static final WorldDimension getLevelStem(ResourceLocationBuilder dim) {
 		return getLevelStem(dim.castToNMS());
 	}
 
@@ -75,6 +75,6 @@ public class LevelStem {
 	 * @return
 	 */
 	public static final WorldDimension getLevelStem(String dim) {
-		return getLevelStem(ResourceLocation.getResourceLocationFromNamespacedID(dim));
+		return getLevelStem(ResourceLocationBuilder.getResourceLocationFromNamespacedID(dim));
 	}
 }

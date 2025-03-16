@@ -18,8 +18,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import lib.crescent.nms.enchantment.NMSEnchantment;
 import lib.crescent.tag.Tag;
-import lib.crescent.utils.format.FormattingStyle;
-import lib.crescent.utils.locale.Locale;
+import lib.lunar.utils.format.FormattingStyle;
+import lib.lunar.utils.locale.Locale;
 
 //附魔类
 public class EnchantmentEntry extends Enchantment implements Listener {

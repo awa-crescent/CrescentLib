@@ -3,8 +3,8 @@ package lib.crescent.nms;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 
-import lib.crescent.Manipulator;
-import lib.crescent.Reflect;
+import lib.lunar.jvm.Manipulator;
+import lib.lunar.jvm.Reflect;
 
 public abstract class CraftBukkitEntry {
 	private static final String craftbukkit_package;
